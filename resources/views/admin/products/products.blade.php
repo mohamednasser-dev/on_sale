@@ -1,15 +1,24 @@
 @extends('admin.app')
 
-@section('title' , __('messages.show_products'))
+@if(Route::current()->getName() == 'products.choose_to_you')
+    @section('title' , __('messages.choose_to_you'))
+@else
+    @section('title' , __('messages.show_products'))
+@endif
+
+
 
 @section('content')
     <div id="tableSimple" class="col-lg-12 col-12 layout-spacing">
         <div class="statbox widget box box-shadow">
             <div class="widget-header">
             <div class="row">
-
                 <div class="col-xl-12 col-md-12 col-sm-12 col-12">
-                    <h4>{{ __('messages.show_products') }} {{ isset($data['user']) ? '( ' . $data['user'] . ' )' : '' }} {{ isset($data['category']) ? '( ' . $data['category'] . ' )' : '' }}</h4>
+                    @if(Route::current()->getName() == 'products.choose_to_you')
+                        <h4>{{ __('messages.choose_to_you') }}</h4>
+                    @else
+                        <h4>{{ __('messages.show_products') }}</h4>
+                    @endif
                 </div>
             </div>
         </div>
@@ -21,7 +30,6 @@
                             <th class="text-center">Id</th>
                             <th class="text-center">{{ __('messages.publication_date') }}</th>
                             <th class="text-center">{{ __('messages.product_name') }}</th>
-                            
                             <th class="text-center">{{ __('messages.plan_name') }}</th>
                             <th class="text-center">{{ __('messages.user') }}</th>
                             <th class="text-center">{{ __('messages.archived_or_not') }}</th>
