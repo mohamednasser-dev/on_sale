@@ -26,7 +26,7 @@ class UserController extends AdminController{
         $data['user'] = User::find($request->id);
         $data['user']->seen = 1;
         $data['user']->save();
-        return view('admin.users.users.user_details' , ['data' => $data]);
+        return view('admin.users.user_details' , ['data' => $data]);
     }
 
     // edit user details
@@ -206,6 +206,6 @@ class UserController extends AdminController{
         $data['products'] = $user->products;
         $data['user'] = $user->name;
 
-        return view('admin.users.products.products', ['data' => $data]);
+        return view('admin.products.products', ['data' => $data]);
     }
 }
