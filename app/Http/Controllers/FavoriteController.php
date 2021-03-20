@@ -55,7 +55,7 @@ class FavoriteController extends Controller
         }
 
         $validator = Validator::make($request->all() , [
-            'fav_id' => 'required',
+            'product_id' => 'required',
         ]);
 
         if($validator->fails()) {
@@ -63,7 +63,7 @@ class FavoriteController extends Controller
             return response()->json($response , 406);
         }
 
-        $favorite = Favorite::where('id' , $request->fav_id)->first();
+        $favorite = Favorite::where('product_id' , $request->product_id)->where('user_id',$user->id)->first();
         if($favorite){
             $favorite->delete();
             $response = APIHelpers::createApiResponse(false , 200 ,  'Deteted ', 'تم الحذف' , null, $request->lang);
@@ -87,6 +87,7 @@ class FavoriteController extends Controller
                                  ->get();
 
             $inc = 0;
+            $data = null;
             foreach ($favorites as $key => $row){
                 $product = Product::where('id',$row->product_id)->first();
                 if($product != null){
