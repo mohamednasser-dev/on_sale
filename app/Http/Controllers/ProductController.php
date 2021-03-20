@@ -249,30 +249,33 @@ class ProductController extends Controller
         $images[count($images)] = $data->main_image;
         $data->images = $images;
         $user_ids[] = null;
-        $user_other_ads = null;
-        if ($user) {
-            $user_other_ads = Product::where('id', '!=', $data->id)
-                ->where('status', 1)
-                ->where('publish', 'Y')
-                ->where('deleted', 0)
-                ->where('user_id', $user->id)
-                ->select('id', 'title', 'price', 'type', 'main_image as image', 'created_at')
-                ->limit(3)
-                ->get()
-                ->map(function ($ads) use ($lang) {
-                    if ($ads->price == null) {
-                        if ($lang == 'ar') {
-                            $ads->price = 'اسأل البائع';
-                        } else {
-                            $ads->price = 'Ask the seller';
-                        }
+        $user_other_ads = (object)[];
+        $user_other_ads = Product::where('id', '!=', $data->id)
+            ->where('status', 1)
+            ->where('publish', 'Y')
+            ->where('deleted', 0)
+            ->where('user_id', $data->user_id)
+            ->select('id', 'title', 'price', 'type', 'main_image as image', 'created_at')
+            ->limit(3)
+            ->get()
+            ->map(function ($ads) use ($lang) {
+                if ($ads->price == null) {
+                    if ($lang == 'ar') {
+                        $ads->price = 'اسأل البائع';
+                    } else {
+                        $ads->price = 'Ask the seller';
                     }
-                    $ads->time = APIHelpers::get_month_year($ads->created_at, $lang);
-                    return $ads;
-                });
-            foreach ($user_other_ads as $key => $row) {
-                $user_ids[$key] = $row->id;
-            }
+                }
+                $ads->time = APIHelpers::get_month_year($ads->created_at, $lang);
+                return $ads;
+            });
+
+        foreach ($user_other_ads as $key => $row) {
+            $user_ids[$key] = $row->id;
+        }
+        if($user_other_ads == null){
+            $user_ids[0] = 0;
+            $user_other_ads = (object)[];
         }
 
         $related = Product::where('category_id', $data->category_id)
