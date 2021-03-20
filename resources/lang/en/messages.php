@@ -1,5 +1,19 @@
 <?php
     return [
+        //new
+        'our_offers' => "our offers",
+        'choose_to_you' => "choose to you",
+        'show_all' => "choose to you",
+        'choosen_done' => "It has been added to your choice",
+        'offer_done' => "Added to the offers",
+        'offer_removed_done' => "Removed from offers",
+        'choosen_removed_done' => "Your choose has been removed",
+        'edit_offer_image' => "Banner show adjustment",
+        'with_arabic' => "(with arabic)",
+        'with_english' => "(with english)",
+        'offer_image' => "Banner image display in home page (Arabic)",
+        'offer_image_en' => "Banner image display as home page (English)",
+
 
         'ad_settings' => "Ads settings",
         'cities' => "Provinces",
