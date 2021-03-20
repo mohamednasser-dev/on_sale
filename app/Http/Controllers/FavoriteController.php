@@ -50,7 +50,7 @@ class FavoriteController extends Controller
     public function removefromfavorites(Request $request){
         $user = auth()->user();
         if($user->active == 0){
-            $response = APIHelpers::createApiResponse(true , 406 ,  'تم حظر حسابك', 'تم حظر حسابك' , null, $request->lang );
+            $response = APIHelpers::createApiResponse(true , 406 ,  'تم حظر حسابك', 'تم حظر حسابك' , (object)[], $request->lang );
             return response()->json($response , 406);
         }
 
@@ -66,7 +66,7 @@ class FavoriteController extends Controller
         $favorite = Favorite::where('product_id' , $request->product_id)->where('user_id',$user->id)->first();
         if($favorite){
             $favorite->delete();
-            $response = APIHelpers::createApiResponse(false , 200 ,  'Deteted ', 'تم الحذف' , null, $request->lang);
+            $response = APIHelpers::createApiResponse(false , 200 ,  'Deteted ', 'تم الحذف' , (object)[], $request->lang);
             return response()->json($response , 200);
         }else{
             $response = APIHelpers::createApiResponse(true , 406 ,  'هذا المنتج غير موجود بالمفضله', 'هذا المنتج غير موجود بالمفضله' , null, $request->lang );
