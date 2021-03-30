@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Participant extends Model
 {
-    protected $fillable = ['user_id', 'conversation_id', 'ad_product_id'];
+    protected $fillable = ['user_id', 'conversation_id', 'ad_product_id','other_user_id'];
 
     public function Ad_product()
     {

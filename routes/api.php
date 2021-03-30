@@ -217,7 +217,7 @@ use Illuminate\Http\Request;
     Route::get('/chat/test_exists_conversation/{id}/{lang}/{v}' , 'ChatController@test_exists_conversation');
     Route::post('/chat/send_message/{lang}/{v}' , 'ChatController@store');
     Route::get('/chat/my_messages/{lang}/{v}' , 'ChatController@my_messages');
-    Route::get('/chat/get_ad_message/{id}/{lang}/{v}' , 'ChatController@get_ad_message');
+    Route::get('/chat/get_ad_message/{id}/{conversation_id}/{lang}/{v}' , 'ChatController@get_ad_message');
     Route::get('/chat/search_conversation/{search}/{lang}/{v}' , 'ChatController@search_conversation');
     Route::get('/chat/make_read/{message_id}/{lang}/{v}' , 'ChatController@make_read');
 
