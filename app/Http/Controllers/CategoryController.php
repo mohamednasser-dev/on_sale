@@ -59,7 +59,7 @@ class CategoryController extends Controller
         }
         for ($i = 0; $i < count($data['sub_categories']); $i++) {
             $cat_ids[$i] = $data['sub_categories'][$i]['id'];
-            $subTwoCats = SubTwoCategory::where('sub_category_id', $data['sub_categories'][$i]['id'])->select('id')->first();
+            $subTwoCats = SubTwoCategory::where('sub_category_id', $data['sub_categories'][$i]['id'])->where('deleted',0)->select('id')->first();
             $data['sub_categories'][$i]['next_level'] = false;
             if (isset($subTwoCats['id'])) {
                 $data['sub_categories'][$i]['next_level'] = true;
@@ -132,7 +132,7 @@ class CategoryController extends Controller
         }
         if (count($data['sub_categories']) > 0) {
             for ($i = 0; $i < count($data['sub_categories']); $i++) {
-                $subThreeCats = SubThreeCategory::where('sub_category_id', $data['sub_categories'][$i]['id'])->select('id')->first();
+                $subThreeCats = SubThreeCategory::where('sub_category_id', $data['sub_categories'][$i]['id'])->where('deleted',0)->select('id')->first();
                 $data['sub_categories'][$i]['next_level'] = false;
 
                 if (isset($subThreeCats['id'])) {
@@ -259,7 +259,7 @@ class CategoryController extends Controller
         }
         if (count($data['sub_categories']) > 0) {
             for ($i = 0; $i < count($data['sub_categories']); $i++) {
-                $subThreeCats = SubFourCategory::where('sub_category_id', $data['sub_categories'][$i]['id'])->select('id')->first();
+                $subThreeCats = SubFourCategory::where('sub_category_id', $data['sub_categories'][$i]['id'])->where('deleted',0)->select('id')->first();
                 $data['sub_categories'][$i]['next_level'] = false;
                 if (isset($subThreeCats['id'])) {
                     $data['sub_categories'][$i]['next_level'] = true;
@@ -713,7 +713,7 @@ class CategoryController extends Controller
         }
         if (count($data['categories']) > 0) {
             for ($i = 0; $i < count($data['categories']); $i++) {
-                $subThreeCats = SubTwoCategory::where('sub_category_id', $data['categories'][$i]['id'])->where('deleted', 0)->select('id')->first();
+                $subThreeCats = SubTwoCategory::where('sub_category_id', $data['categories'][$i]['id'])->where('deleted', 0)->where('deleted',0)->select('id')->first();
                 $data['categories'][$i]['next_level'] = false;
                 if (isset($subThreeCats['id'])) {
                     $data['categories'][$i]['next_level'] = true;

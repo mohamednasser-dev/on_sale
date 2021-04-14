@@ -42,7 +42,7 @@ class UserController extends Controller
     }
 
     public function updateprofile(Request $request){
-
+        $input = $request->all();
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'phone' => 'required',
@@ -74,15 +74,11 @@ class UserController extends Controller
             $image_id = $imagereturned['public_id'];
             $image_format = $imagereturned['format'];
             $image_new_name = $image_id . '.' . $image_format;
-            $request->image = $image_new_name;
+            $input['image'] = $image_new_name;
+        }else{
+            unset($input['image']);
         }
-
-        User::where('id' , $currentuser->id)->update([
-            'name' => $request->name ,
-            'phone' => $request->phone ,
-            'email' => $request->email,
-            'image' => $request->image
-            ]);
+        User::where('id' , $currentuser->id)->update($input);
 
         $newuser = User::find($currentuser->id);
         $response = APIHelpers::createApiResponse(false , 200 ,  '', '' , $newuser, $request->lang );
