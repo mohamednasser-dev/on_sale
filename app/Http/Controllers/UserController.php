@@ -36,19 +36,22 @@ class UserController extends Controller
 		$returned_user['name'] = $user['name'];
         $returned_user['phone'] = $user['phone'];
         $returned_user['email'] = $user['email'];
+        $returned_user['image'] = $user['image'];
         $response = APIHelpers::createApiResponse(false , 200 ,  '', '' , $returned_user, $request->lang );
         return response()->json($response , 200);
     }
 
     public function updateprofile(Request $request){
+
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'phone' => 'required',
             "email" => 'required',
+            "image" => '',
         ]);
 
         if ($validator->fails()) {
-            $response = APIHelpers::createApiResponse(true , 406 ,  'بعض الحقول مفقودة', '' , null, $request->lang );
+            $response = APIHelpers::createApiResponse(true , 406 ,  $validator->errors()->first(), $validator->errors()->first(), null, $request->lang );
             return response()->json($response , 406);
         }
 
@@ -64,11 +67,22 @@ class UserController extends Controller
             $response = APIHelpers::createApiResponse(true , 409 , 'البريد الإلكتروني موجود من قبل', '' , null, $request->lang );
             return response()->json($response , 409);
         }
+        if($request->image != null){
+            $image = $request->image;
+            Cloudder::upload("data:image/jpeg;base64," . $image, null);
+            $imagereturned = Cloudder::getResult();
+            $image_id = $imagereturned['public_id'];
+            $image_format = $imagereturned['format'];
+            $image_new_name = $image_id . '.' . $image_format;
+            $request->image = $image_new_name;
+        }
 
         User::where('id' , $currentuser->id)->update([
             'name' => $request->name ,
             'phone' => $request->phone ,
-            'email' => $request->email  ]);
+            'email' => $request->email,
+            'image' => $request->image
+            ]);
 
         $newuser = User::find($currentuser->id);
         $response = APIHelpers::createApiResponse(false , 200 ,  '', '' , $newuser, $request->lang );
@@ -453,11 +467,11 @@ class UserController extends Controller
     public function my_account(Request $request){
         $user = auth()->user();
         $user_data = User::where('id',$user->id)->select('name','email','image','phone','free_balance','payed_balance')->first();
-        if($user_data->image == null){
-            $settings = Setting::where('id',1)->first();
-
-            $user_data['image'] = $settings->logo;
-        }
+//        if($user_data->image == null){
+//            $settings = Setting::where('id',1)->first();
+//
+//            $user_data['image'] = $settings->logo;
+//        }
         $response = APIHelpers::createApiResponse(false , 200 , '' , '' , $user_data , $request->lang);
         return response()->json($response , 200);
     }
