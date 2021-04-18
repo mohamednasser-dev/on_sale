@@ -134,6 +134,7 @@ use Illuminate\Http\Request;
     //search ads
     Route::post('/ads/search/{lang}/{v}' , 'ProductController@getsearch');
     Route::post('/ads/filter/{lang}/{v}' , 'ProductController@filter');
+    Route::get('/ad/max_min_price/{lang}/{v}' , 'ProductController@max_min_price');
 
     //delete my ad
     Route::get('/ad/delete/{id}/{lang}/{v}' , 'ProductController@delete_my_ad');
@@ -165,6 +166,8 @@ use Illuminate\Http\Request;
 
 
     Route::get('/ad/select_my_ads/{lang}/{v}' , 'ProductController@select_ended_ads');
+    Route::get('/ad/ended_ads/{lang}/{v}' , 'ProductController@ended_ads');
+    Route::get('/ad/current_ads/{lang}/{v}' , 'ProductController@current_ads');
     Route::get('/ad/select_current_ads/{lang}/{v}' , 'ProductController@select_current_ads');
     Route::get('/ad/select_all_ads/{lang}/{v}' , 'ProductController@select_all_ads');
     Route::get('/select_all_mndobeen/{lang}/{v}' , 'MndobController@index');

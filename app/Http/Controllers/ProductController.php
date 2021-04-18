@@ -25,7 +25,7 @@ class ProductController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['filter','offer_ads', 'republish_ad','areas', 'cities', 'third_step_excute_pay', 'save_third_step_with_money', 'update_ad', 'select_ad_data', 'delete_my_ad', 'save_third_
+        $this->middleware('auth:api', ['except' => ['current_ads','ended_ads','max_min_price','filter','offer_ads', 'republish_ad','areas', 'cities', 'third_step_excute_pay', 'save_third_step_with_money', 'update_ad', 'select_ad_data', 'delete_my_ad', 'save_third_
         step', 'save_second_step', 'save_first_step', 'getdetails', 'last_seen', 'getoffers', 'getproducts', 'getsearch', 'getFeatureOffers']]);
         //        --------------------------------------------- begin scheduled functions --------------------------------------------------------
 
@@ -482,6 +482,20 @@ class ProductController extends Controller
         }
         $data['products'] = $products;
         $response = APIHelpers::createApiResponse(false, 200, '', '', $products, $request->lang);
+        return response()->json($response, 200);
+    }
+
+    public function max_min_price(Request $request)
+    {
+        $products = Product::where('publish', 'Y')->where('status', 1)->where('deleted', 0)->where('price','!=',null)->orderBy('price','desc')->get();
+        $data['max'] = $products->last()->price;
+        $data['min'] = $products->first()->price;
+
+        $null_price = Product::where('publish', 'Y')->where('status', 1)->where('deleted', 0)->where('price',null)->get();
+        if(count($null_price) > 0){
+            $data['min'] = "0";
+        }
+        $response = APIHelpers::createApiResponse(false, 200, '', '', $data, $request->lang);
         return response()->json($response, 200);
     }
     public function getFeatureOffers(Request $request)
@@ -1001,6 +1015,39 @@ class ProductController extends Controller
             return response()->json($response, 200);
         } else {
             $response = APIHelpers::createApiResponse(false, 200, '', '', $ads, $request->lang);
+            return response()->json($response, 200);
+        }
+    }
+    public function ended_ads(Request $request)
+    {
+        $data = Product::where('status', 2)
+            ->where('deleted', 0)
+            ->where('user_id', auth()->user()->id)
+            ->select('id', 'title', 'price', 'main_image')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        if (count($data) == 0) {
+            $response = APIHelpers::createApiResponse(false, 200, 'no ads yet !', ' !لا يوجد اعلانات حتى الان', null, $request->lang);
+            return response()->json($response, 200);
+        } else {
+            $response = APIHelpers::createApiResponse(false, 200, '', '', $data, $request->lang);
+            return response()->json($response, 200);
+        }
+    }
+    public function current_ads(Request $request)
+    {
+        $data = Product::where('status', 1)
+            ->where('publish', 'Y')
+            ->where('deleted', 0)
+            ->where('user_id', auth()->user()->id)
+            ->select('id', 'title', 'price', 'main_image')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        if (count($data) == 0) {
+            $response = APIHelpers::createApiResponse(false, 200, 'no ads yet !', ' !لا يوجد اعلانات حتى الان', null, $request->lang);
+            return response()->json($response, 200);
+        } else {
+            $response = APIHelpers::createApiResponse(false, 200, '', '', $data, $request->lang);
             return response()->json($response, 200);
         }
     }
