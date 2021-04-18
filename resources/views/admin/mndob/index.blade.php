@@ -37,7 +37,7 @@
                         @foreach ($data as $row)
                             <tr >
                                 <td class="text-center blue-color"><?=$i;?></td>
-                                <td class="text-center"><img src="https://res.cloudinary.com/carsads/image/upload/w_100,q_100/v1581928924/{{ $row->image }}"  /></td>
+                                <td class="text-center"><img src="https://res.cloudinary.com/carsads2021/image/upload/w_100,q_100/v1581928924/{{ $row->image }}"  /></td>
                                 <td class="text-center blue-color">{{ app()->getLocale() == 'en' ? $row->name_en : $row->name_ar }}</td>
                                 <td class="text-center">{{ $row->phone }}</td>
                                 <td class="text-center">{{ $row->watsapp }}</td>

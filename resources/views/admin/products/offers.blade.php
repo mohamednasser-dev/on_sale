@@ -16,7 +16,7 @@
                         <h4>{{ __('messages.offer_image') }}</h4>
                         <div class="form-group mb-4">
                             <img style="height: 100px;"
-                                 src="https://res.cloudinary.com/carsads/image/upload/w_100,q_100/v1581928924/{{$data['offer_image']}}">
+                                 src="https://res.cloudinary.com/carsads2021/image/upload/w_100,q_100/v1581928924/{{$data['offer_image']}}">
                         </div>
                         <div class="col-xl-12 col-md-12 col-sm-12 col-12">
                             <a class="btn btn-primary" data-toggle="modal"
@@ -27,7 +27,7 @@
                         <h4>{{ __('messages.offer_image_en') }}</h4>
                         <div class="form-group mb-4">
                             <img style="height: 100px;"
-                                 src="https://res.cloudinary.com/carsads/image/upload/w_100,q_100/v1581928924/{{$data['offer_image_en']}}">
+                                 src="https://res.cloudinary.com/carsads2021/image/upload/w_100,q_100/v1581928924/{{$data['offer_image_en']}}">
                         </div>
                         <div class="col-xl-12 col-md-12 col-sm-12 col-12">
                             <a class="btn btn-primary" data-toggle="modal"

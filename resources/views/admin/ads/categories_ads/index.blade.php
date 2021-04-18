@@ -32,7 +32,7 @@
                             @foreach ($data as $category)
                                 <tr>
                                     <td><?=$i;?></td>
-                                    <td class="text-center"><img src="https://res.cloudinary.com/carsads/image/upload/w_100,q_100/v1581928924/{{ $category->image }}"  /></td>
+                                    <td class="text-center"><img src="https://res.cloudinary.com/carsads2021/image/upload/w_100,q_100/v1581928924/{{ $category->image }}"  /></td>
                                     <td>{{ app()->getLocale() == 'en' ? $category->title_en : $category->title_ar }}</td>
                                     <td class="text-center blue-color">
                                         <a href="{{route('sub_categories_ads.index',$category->id)}}">

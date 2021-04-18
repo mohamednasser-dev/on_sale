@@ -77,7 +77,7 @@
             @csrf
             <div class="form-group mb-4">
                 <label for="">{{ __('messages.current_image') }}</label><br>
-                <img src="https://res.cloudinary.com/carsads/image/upload/w_100,q_100/v1581928924/{{ $data['ad']['image'] }}"  />
+                <img src="https://res.cloudinary.com/carsads2021/image/upload/w_100,q_100/v1581928924/{{ $data['ad']['image'] }}"  />
             </div>
             <div class="custom-file-container" data-upload-id="myFirstImage">
                 <label>{{ __('messages.change_image') }} ({{ __('messages.single_image') }}) <a href="javascript:void(0)" class="custom-file-container__image-clear" title="Clear Image">x</a></label>
@@ -105,12 +105,12 @@
                     <option {{ $data['ad']['type'] == 'id' ? 'selected' : '' }} value="2">{{ __('messages.inside_the_app') }}</option>
                 </select>
             </div>
-                   
+
             <div style="display: {{ $data['ad']['type'] == 'id' ? 'none' : '' }}" class="form-group mb-4 outside">
                 <label for="link">{{ __('messages.link') }}</label>
                 <input required type="text" name="content" class="form-control" id="link" placeholder="{{ __('messages.link') }}" value="{{ $data['ad']['content'] }}" >
             </div>
-            
+
 
             <div style="display: {{ $data['ad']['type'] == 'link' ? 'none' : '' }}" class="form-group inside">
                 <label for="users">{{ __('messages.user') }}</label>
@@ -126,7 +126,7 @@
                 <select id="products" class="form-control" name="content">
                 </select>
             </div>
-            
+
             <input type="submit" value="{{ __('messages.edit') }}" class="btn btn-primary">
         </form>
     </div>

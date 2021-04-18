@@ -9,19 +9,19 @@
             <div class="row">
                 <div class="col-xl-12 col-md-12 col-sm-12 col-12">
                     <h4>{{ __('messages.notification_details') }}</h4>
-					
+
                 </div>
             </div>
         </div>
         <div class="widget-content widget-content-area">
-            <div class="table-responsive"> 
+            <div class="table-responsive">
                 <table class="table table-bordered mb-4">
                     <tbody>
                             @if($data['notification']['image'])
                                 <tr>
                                     <td class="label-table" > {{ __('messages.image') }} </td>
                                     <td>
-                                        <img src="https://res.cloudinary.com/carsads/image/upload/w_100,q_100/v1581928924/{{ $data['notification']['image'] }}" />
+                                        <img src="https://res.cloudinary.com/carsads2021/image/upload/w_100,q_100/v1581928924/{{ $data['notification']['image'] }}" />
                                     </td>
                                 </tr>
                             @endif
@@ -52,11 +52,11 @@
                         <div class="alert alert-success mb-4" role="alert">
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">x</button>
                             <strong>Success</strong> {{ session('status') }} </button>
-                        </div> 
-                    @endif    
+                        </div>
+                    @endif
 
             </div>
         </div>
-    </div>  
-    
+    </div>
+
 @endsection

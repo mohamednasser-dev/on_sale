@@ -57,7 +57,7 @@
                             @foreach ($data['ads_top'] as $ad)
                                 <tr>
                                     <td><?=$i;?></td>
-                                    <td class="text-center"><img src="https://res.cloudinary.com/carsads/image/upload/w_100,q_100/v1581928924/{{ $ad->image }}"  /></td>
+                                    <td class="text-center"><img src="https://res.cloudinary.com/carsads2021/image/upload/w_100,q_100/v1581928924/{{ $ad->image }}"  /></td>
 
                                     <td class="text-center blue-color"><a href="/admin-panel/ads/details/{{ $ad->id }}" ><i class="far fa-eye"></i></a></td>
                                     @if(Auth::user()->update_data)
@@ -94,7 +94,7 @@
                             @foreach ($data['ads_bottom'] as $ad)
                                 <tr>
                                     <td><?=$i;?></td>
-                                    <td class="text-center"><img src="https://res.cloudinary.com/carsads/image/upload/w_100,q_100/v1581928924/{{ $ad->image }}"  /></td>
+                                    <td class="text-center"><img src="https://res.cloudinary.com/carsads2021/image/upload/w_100,q_100/v1581928924/{{ $ad->image }}"  /></td>
 
                                     <td class="text-center blue-color"><a href="/admin-panel/ads/details/{{ $ad->id }}" ><i class="far fa-eye"></i></a></td>
                                     @if(Auth::user()->update_data)
@@ -114,7 +114,7 @@
 
 
 
-           
+
         </div>
 
     </div>
