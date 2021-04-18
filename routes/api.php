@@ -37,6 +37,7 @@ use Illuminate\Http\Request;
         Route::put('resetpassword/{lang}/{v}' , 'UserController@resetpassword');
         Route::put('resetforgettenpassword/{lang}/{v}' , 'UserController@resetforgettenpassword')->middleware('checkguest');
         Route::post('checkphoneexistance/{lang}/{v}' , 'UserController@checkphoneexistance')->middleware('checkguest');
+        Route::post('checkphoneexistanceandroid/{lang}/{v}' , 'UserController@checkphoneexistanceandroid')->middleware('checkguest');
         Route::get('notifications/{lang}/{v}' , 'UserController@notifications');
         Route::get('adscount/{lang}/{v}' , 'UserController@getadscount');
         Route::get('current_ads/{lang}/{v}' , 'UserController@getcurrentads');

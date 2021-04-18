@@ -27,7 +27,7 @@ class UserController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api' , ['except' => ['pay_sucess','pay_error','excute_pay','my_account','my_balance','resetforgettenpassword' , 'checkphoneexistance' , 'getownerprofile']]);
+        $this->middleware('auth:api' , ['except' => ['pay_sucess','pay_error','excute_pay','my_account','my_balance','resetforgettenpassword' , 'checkphoneexistance','checkphoneexistanceandroid' , 'getownerprofile']]);
     }
 
     public function getprofile(Request $request){
@@ -39,6 +39,56 @@ class UserController extends Controller
         $returned_user['image'] = $user['image'];
         $response = APIHelpers::createApiResponse(false , 200 ,  '', '' , $returned_user, $request->lang );
         return response()->json($response , 200);
+    }
+    public function checkphoneexistanceandroid(Request $request)
+    {
+        $validator = Validator::make($request->all() , [
+            'phone' => 'required'
+        ]);
+
+        if($validator->fails()) {
+            $response = APIHelpers::createApiResponse(true , 406 , 'Missing Required Fields' , 'حقل الهاتف اجباري' , (object)[] , $request->lang);
+            return response()->json($response , 406);
+        }
+
+        $user = User::where('phone' , $request->phone)->first();
+        if($user){
+
+            if($request->email){
+                $user_email = User::where('email' , $request->email)->first();
+                if($user_email){
+                    $response = APIHelpers::createApiResponse(false , 200 , '' , '' , (object)[] , $request->lang);
+                    $response['phone'] = true;
+                    $response['email'] = true;
+                    return response()->json($response , 200);
+                }else{
+                    $response = APIHelpers::createApiResponse(false , 200 , '' , '' ,(object)[] , $request->lang);
+                    $response['phone'] = true;
+                    $response['email'] = false;
+                    return response()->json($response , 200);
+                }
+
+            }
+            $response = APIHelpers::createApiResponse(false , 200 , '' , '' , (object)[] , $request->lang);
+            return response()->json($response , 200);
+        }
+        if($request->email){
+            $user_email = User::where('email' , $request->email)->first();
+            if($user_email){
+                $response = APIHelpers::createApiResponse(false , 200 , '' , '' , (object)[] , $request->lang);
+                $response['phone'] = false;
+                $response['email'] = true;
+                return response()->json($response , 200);
+            }
+
+        }
+
+        $response = APIHelpers::createApiResponse(false , 200 , 'Phone and Email Not Exists Before' , 'الهاتف و البريد غير موجودين من قبل' , (object)[] , $request->lang);
+        $response['phone'] = false;
+        $response['email'] = false;
+
+        return response()->json($response , 200);
+
     }
 
     public function updateprofile(Request $request){
