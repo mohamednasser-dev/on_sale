@@ -1,8 +1,7 @@
 <?php
 namespace App\Http\Controllers\Admin;
-use App\Http\Controllers\Admin\AdminController;
+
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Setting;
 
 class AppPagesController extends AdminController{

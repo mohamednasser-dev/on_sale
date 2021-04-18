@@ -2,27 +2,24 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Category_option;
+use JD\Cloudder\Facades\Cloudder;
 use App\Category_option_value;
-use App\Helpers\APIHelpers;
-use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\Admin\categories\OptionsValuesController;
-use App\Plan;
-use App\Plan_details;
+use Illuminate\Http\Request;
+use App\SubThreeCategory;
 use App\Product_feature;
-use App\SubCategory;
+use App\Category_option;
 use App\SubFiveCategory;
 use App\SubFourCategory;
-use App\SubThreeCategory;
 use App\SubTwoCategory;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-use JD\Cloudder\Facades\Cloudder;
-use App\Product;
 use App\ProductImage;
+use App\Plan_details;
+use App\SubCategory;
+use Carbon\Carbon;
 use App\Category;
-use App\User;
+use App\Product;
 use App\Setting;
+use App\Plan;
+use App\User;
 
 class ProductController extends AdminController
 {

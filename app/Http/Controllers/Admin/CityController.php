@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\City;
 use App\Area;
-
 
 class CityController extends AdminController
 {
@@ -30,7 +28,7 @@ class CityController extends AdminController
     {
         return view('admin.cities.create');
     }
-   
+
 
     public function store(Request $request)
     {

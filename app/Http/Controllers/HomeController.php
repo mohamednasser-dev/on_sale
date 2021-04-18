@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Balance_package;
-use App\Main_ad;
-use App\Plan_details;
-use App\Setting;
-use App\User;
 use Illuminate\Http\Request;
 use App\Helpers\APIHelpers;
-use App\Category;
-use App\Ad;
-use App\Product;
+use App\Balance_package;
 use App\ProductImage;
-use App\Favorite;
+use App\Plan_details;
 use Carbon\Carbon;
+use App\Favorite;
+use App\Category;
+use App\Product;
+use App\Main_ad;
+use App\Setting;
+use App\User;
+use App\Ad;
 
 
 class HomeController extends Controller

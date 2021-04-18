@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin\Ads\categories_ads;
+
 use App\Http\Controllers\Admin\AdminController;
 use App\SubFourCategory;
 use JD\Cloudder\Facades\Cloudder;

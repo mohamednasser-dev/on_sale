@@ -2,24 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Categories_ad;
-use App\Category_option;
-use App\Category_option_value;
-use App\Favorite;
-use App\SubFiveCategory;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use App\Category_option_value;
+use Illuminate\Http\Request;
 use App\Helpers\APIHelpers;
-use App\Category;
-use App\SubCategory;
-use App\SubTwoCategory;
 use App\SubThreeCategory;
-use App\ProductImage;
-use App\Product_view;
-use App\Product;
+use App\SubFiveCategory;
+use App\Category_option;
 use App\SubFourCategory;
+use App\SubTwoCategory;
+use App\Product_view;
+use App\SubCategory;
+use App\Favorite;
+use App\Category;
+use App\Product;
 
 
 class CategoryController extends Controller

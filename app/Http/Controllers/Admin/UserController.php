@@ -1,16 +1,15 @@
 <?php
 namespace App\Http\Controllers\Admin;
-use App\Http\Controllers\Admin\AdminController;
-use App\WalletTransaction;
-use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
-use App\Helpers\APIHelpers;
 use JD\Cloudder\Facades\Cloudder;
-use App\User;
-use App\Notification;
+use Illuminate\Http\Request;
+use App\Helpers\APIHelpers;
+use App\WalletTransaction;
 use App\UserNotification;
+use App\Notification;
 use App\Setting;
+use App\User;
 
 
 class UserController extends AdminController{

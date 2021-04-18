@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Admin\Ads;
 
 use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\Controller;
-use App\Main_ad;
 use JD\Cloudder\Facades\Cloudder;
 use Illuminate\Http\Request;
+use App\Main_ad;
 
 class MainAdsController extends AdminController
 {

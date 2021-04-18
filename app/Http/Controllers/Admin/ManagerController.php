@@ -1,14 +1,11 @@
 <?php
 namespace App\Http\Controllers\Admin;
-use App\Http\Controllers\Admin\AdminController;
+
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
-use JD\Cloudder\Facades\Cloudder;
-use Illuminate\Support\Facades\DB;
-use App\Admin;
-use App\Permission;
 use App\AdminPermission;
-use Illuminate\Support\Facades\Auth;
+use App\Permission;
+use App\Admin;
 
 
 class ManagerController extends AdminController{

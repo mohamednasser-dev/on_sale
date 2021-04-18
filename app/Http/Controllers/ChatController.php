@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Product;
-use App\Conversation;
-use App\Message;
-use App\Participant;
-use App\User;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use JD\Cloudder\Facades\Cloudder;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\APIHelpers;
+use App\Conversation;
+use App\Participant;
+use Carbon\Carbon;
+use App\Product;
+use App\Message;
+use App\User;
 
 class ChatController extends Controller
 {

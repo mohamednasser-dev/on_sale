@@ -1,11 +1,10 @@
 <?php
 namespace App\Http\Controllers\Admin\categories;
-use App\Category_option;
+
 use App\Http\Controllers\Admin\AdminController;
-use Illuminate\Http\Request;
 use JD\Cloudder\Facades\Cloudder;
-use Illuminate\Support\Facades\DB;
-use App\Category;
+use Illuminate\Http\Request;
+use App\Category_option;
 
 class CategoryOptionsController extends AdminController{
     public function index()
@@ -13,7 +12,7 @@ class CategoryOptionsController extends AdminController{
     }
 
     public function show($id){
-        $data = Category_option::where('cat_id',$id)->get();
+        $data = Category_option::where('deleted','0')->where('cat_id',$id)->get();
         return view('admin.categories.category_options.index',compact('data','id'));
     }
 
@@ -36,6 +35,13 @@ class CategoryOptionsController extends AdminController{
         $data['image'] = $image_new_name ;
         Category_option::create($data);
         session()->flash('success', trans('messages.added_s'));
+        return back();
+    }
+
+    public function destroy($id){
+        $data['deleted'] = '1';
+        Category_option::where('id',$id)->update($data);
+        session()->flash('success', trans('messages.deleted_s'));
         return back();
     }
 }

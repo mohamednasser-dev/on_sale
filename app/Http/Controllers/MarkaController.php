@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Helpers\APIHelpers;
-use App\Marka;
 use App\MarkaType;
 use App\TypeModel;
+use App\Marka;
 
 class MarkaController extends Controller
 {

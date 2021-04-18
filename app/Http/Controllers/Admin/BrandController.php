@@ -1,7 +1,9 @@
 <?php
 namespace App\Http\Controllers\Admin;
+
 use Illuminate\Http\Request;
 use App\Marka;
+
 class BrandController extends AdminController
 {
     public function index() {

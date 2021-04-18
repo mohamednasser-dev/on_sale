@@ -26,6 +26,7 @@
                             <th class="text-center">{{ __('messages.image') }}</th>
                             <th>{{ __('messages.name') }}</th>
                             <th class="text-center">{{ __('messages.list_values') }}</th>
+                            <th class="text-center">{{ __('messages.delete') }}</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -38,6 +39,9 @@
                                 <td class="text-center blue-color"><a
                                         href="{{ route('options_values.show', $row->id) }}"><i
                                             class="far fa-eye"></i></a></td>
+                                @if(Auth::user()->delete_data)
+                                    <td class="text-center blue-color" ><a onclick="return confirm('Are you sure you want to delete this item?');" href="{{route('cat_options.deleted',$row->id)}}" ><i class="far fa-trash-alt"></i></a></td>
+                                @endif
                                 <?php $i++; ?>
                             </tr>
                         @endforeach

@@ -1,12 +1,12 @@
 <?php
 
 namespace App\Http\Controllers\Admin\Ads\categories_ads;
+
 use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\Controller;
 use JD\Cloudder\Facades\Cloudder;
 use Illuminate\Http\Request;
-use App\Categories_ad;
 use App\SubTwoCategory;
+use App\Categories_ad;
 
 class SubTwoCategoriesAdsController extends AdminController
 {

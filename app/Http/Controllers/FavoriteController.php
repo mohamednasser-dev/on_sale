@@ -2,15 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Request;
 use App\Helpers\APIHelpers;
 use App\Favorite;
-use App\User;
 use App\Product;
-use App\ProductImage;
 
 
 class FavoriteController extends Controller

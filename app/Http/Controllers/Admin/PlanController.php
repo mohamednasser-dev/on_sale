@@ -1,8 +1,10 @@
 <?php
 namespace App\Http\Controllers\Admin;
-use App\Plan_details;
+
 use Illuminate\Http\Request;
+use App\Plan_details;
 use App\Plan;
+
 class PlanController extends AdminController{
     // show
     public function index() {

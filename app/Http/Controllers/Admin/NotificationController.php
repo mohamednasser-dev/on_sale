@@ -1,14 +1,12 @@
 <?php
 namespace App\Http\Controllers\Admin;
-use App\Http\Controllers\Admin\AdminController;
-use App\Visitor;
-use Illuminate\Http\Request;
+
 use JD\Cloudder\Facades\Cloudder;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 use App\Helpers\APIHelpers;
-use App\Notification;
 use App\UserNotification;
-use App\User;
+use App\Notification;
+use App\Visitor;
 
 class NotificationController extends AdminController{
 
