@@ -1223,9 +1223,9 @@ class ProductController extends Controller
             ->select('id', 'category_id', 'sub_category_id', 'sub_category_two_id', 'sub_category_three_id', 'sub_category_four_id', 'sub_category_five_id', 'title', 'price', 'description', 'main_image','city_id','area_id','share_location','latitude','longitude')
             ->first();
         if($data['ad']->share_location == '1'){
-            $data['ad']->share_location = 1 ;
+            $data['ad']->share_location = true ;
         }else{
-            $data['ad']->share_location = 0 ;
+            $data['ad']->share_location = false ;
         }
         $data['ad_images'] = ProductImage::where('product_id', $id)->select('id', 'image', 'product_id')->get();
         if($request->lang == 'ar'){
