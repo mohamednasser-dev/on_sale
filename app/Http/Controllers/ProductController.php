@@ -223,9 +223,11 @@ class ProductController extends Controller
         foreach ($features as $key => $feature) {
             $feature_data[$key]['image'] = $feature->Option->image;
             if ($feature->type == 'manual') {
-                $feature_data[$key]['title'] = $feature->Option->title . ' : ' . $feature->target_id;
+                $feature_data[$key]['title'] = $feature->Option->title;
+                $feature_data[$key]['value'] =  $feature->target_id;
             } else if ($feature->type == 'option') {
-                $feature_data[$key]['title'] = $feature->Option->title . ' : ' . $feature->Option_value->value;
+                $feature_data[$key]['title'] = $feature->Option->title ;
+                $feature_data[$key]['value'] =  $feature->Option_value->value;
             }
         }
         if ($user) {
