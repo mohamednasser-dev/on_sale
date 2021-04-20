@@ -1295,6 +1295,28 @@ class ProductController extends Controller
                 $data['category_names'] = $data['category_names'] . '/'.$ssssscat_data->title_en;
             }
         }
+
+        $features = Product_feature::where('product_id',$id)
+            ->select('id','type','product_id','target_id','option_id')
+            ->orderBy('option_id','asc')
+            ->get();
+
+        foreach ($features as $key => $feature) {
+            if($feature->type == 'manual'){
+                $features[$key]['type'] = 'input';
+                $features[$key]['value'] = $feature->target_id;
+            }else if($feature->type == 'option'){
+                $features[$key]['type'] =  'select';
+                $target_data = Category_option_value::where('id',$feature->target_id)->first();
+                if($request->lang == 'ar')
+                    $features[$key]['value'] =  $target_data->value_ar;
+                else{
+                    $features[$key]['value'] =  $target_data->value_en;
+                }
+            }
+        }
+
+        $data['features'] = $features;
         $response = APIHelpers::createApiResponse(false, 200, 'data shown', 'تم أظهار البيانات', $data, $request->lang);
         return response()->json($response, 200);
     }
