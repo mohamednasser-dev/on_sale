@@ -1224,6 +1224,14 @@ class ProductController extends Controller
             ->first();
         $data['ad_images'] = ProductImage::where('product_id', $id)->select('id', 'image', 'product_id')->get();
         if($request->lang == 'ar'){
+            if($data['ad']->city_id != null) {
+                $cat_data_city = City::find($data['ad']->city_id);
+                $data['area_names'] =   $cat_data_city->title_ar;
+            }
+            if($data['ad']->area_id != null) {
+                $cat_data_area = Area::find($data['ad']->area_id);
+                $data['area_names'] =   $data['area_names'] . '/'.$cat_data_area->title_ar;
+            }
             if($data['ad']->category_id != null) {
                 $cat_data = Category::find($data['ad']->category_id);
                 $data['category_names'] =   $cat_data->title_ar;
@@ -1249,6 +1257,14 @@ class ProductController extends Controller
                 $data['category_names'] = $data['category_names'] . '/'.$ssssscat_data->title_ar;
             }
         }else{
+            if($data['ad']->city_id != null) {
+                $cat_data_city = City::find($data['ad']->city_id);
+                $data['area_names'] =   $cat_data_city->title_en;
+            }
+            if($data['ad']->area_id != null) {
+                $cat_data_area = Area::find($data['ad']->area_id);
+                $data['area_names'] =   $data['area_names'] . '/'.$cat_data_area->title_en;
+            }
             if($data['ad']->category_id != null) {
                 $cat_data = Category::find($data['ad']->category_id);
                 $data['category_names'] =   $cat_data->title_en;

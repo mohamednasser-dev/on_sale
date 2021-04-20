@@ -89,32 +89,6 @@ class ChatController extends Controller
             if (auth()->user() != null) {
                 //test exists message
                 $conversation_id = $request->conversation_id;
-//                $product = Product::find($request->id);
-//                $exist_one = Participant::where('ad_product_id',$request->ad_product_id)
-//                                    ->where('user_id',auth()->user()->id)
-//                                    ->where('other_user_id',$product->user_id)
-//                                    ->first();
-//                $exist_two = Participant::where('ad_product_id',$request->ad_product_id)
-//                    ->where('other_user_id',auth()->user()->id)
-//                    ->where('user_id',$product->user_id)
-//                    ->first();
-//                if($exist != null){
-//                    $conversation_id = $exist->conversation_id;
-//                }else{
-//                    $conversation_id = 0;
-//                }
-
-//                if($exist_two != null ){
-//                    $conversation_id = $exist_two->conversation_id;
-//                }else{
-//                    $conversation_id = 0;
-//                }
-//
-//                if($exist_one != null ){
-//                    $conversation_id = $exist_one->conversation_id;
-//                }else{
-//                    $conversation_id = 0;
-//                }
 
                 $ad_product = Product::findOrfail($request->ad_product_id);
                 if ($conversation_id == 0) {
