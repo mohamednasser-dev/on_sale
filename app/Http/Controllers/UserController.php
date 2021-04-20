@@ -507,7 +507,7 @@ class UserController extends Controller
 //nasser code
     public function my_account(Request $request){
         $user = auth()->user();
-        $user_data = User::where('id',$user->id)->select('name','email','image','phone','free_balance','payed_balance')->first();
+        $user_data = User::where('id',$user->id)->select('name','email','image','phone','free_balance','payed_balance','created_at')->first();
 //        if($user_data->image == null){
 //            $settings = Setting::where('id',1)->first();
 //
