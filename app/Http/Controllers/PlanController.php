@@ -106,6 +106,7 @@ class PlanController extends Controller
                 ->where('deleted','0')
                 ->where('status' , 'show')
                 ->where('cat_id' , $cat_id)
+                ->where('deleted' ,'0')
                 ->orwhere('cat_id' , 'all')
                 ->select('id' ,'title_ar as title' , 'title_en' ,'cat_id','price')
                 ->get()
