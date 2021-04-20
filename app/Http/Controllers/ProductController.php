@@ -624,20 +624,22 @@ class ProductController extends Controller
                     //save product feature ...
                     if($request->options != null){
                         foreach ($request->options as $key => $option) {
-                            if (is_numeric($option['option_value'])) {
-                                $option_values = Category_option_value::where('id', $option['option_value'])->first();
-                                if ($option_values != null) {
-                                    $feature_data['type'] = 'option';
+                            if($option['option_value'] != null){
+                                if (is_numeric($option['option_value'])) {
+                                    $option_values = Category_option_value::where('id', $option['option_value'])->first();
+                                    if ($option_values != null) {
+                                        $feature_data['type'] = 'option';
+                                    } else {
+                                        $feature_data['type'] = 'manual';
+                                    }
                                 } else {
                                     $feature_data['type'] = 'manual';
                                 }
-                            } else {
-                                $feature_data['type'] = 'manual';
+                                $feature_data['product_id'] = $ad_data->id;
+                                $feature_data['target_id'] = $option['option_value'];
+                                $feature_data['option_id'] = $option['option_id'];
+                                Product_feature::create($feature_data);
                             }
-                            $feature_data['product_id'] = $ad_data->id;
-                            $feature_data['target_id'] = $option['option_value'];
-                            $feature_data['option_id'] = $option['option_id'];
-                            Product_feature::create($feature_data);
                         }
                     }
                     foreach ($request->images as $image) {
