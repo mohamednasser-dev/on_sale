@@ -1222,6 +1222,11 @@ class ProductController extends Controller
             ->with('Area_api')
             ->select('id', 'category_id', 'sub_category_id', 'sub_category_two_id', 'sub_category_three_id', 'sub_category_four_id', 'sub_category_five_id', 'title', 'price', 'description', 'main_image','city_id','area_id','share_location','latitude','longitude')
             ->first();
+        if($data['ad']->share_location == '1'){
+            $data['ad']->share_location = 1 ;
+        }else{
+            $data['ad']->share_location = 0 ;
+        }
         $data['ad_images'] = ProductImage::where('product_id', $id)->select('id', 'image', 'product_id')->get();
         if($request->lang == 'ar'){
             if($data['ad']->city_id != null) {
