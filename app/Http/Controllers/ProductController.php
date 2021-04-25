@@ -195,7 +195,7 @@ class ProductController extends Controller
         $data = Product::with('Product_user')
             ->select('id', 'title', 'main_image', 'description', 'price', 'type', 'publication_date as date', 'user_id', 'category_id')
             ->find($request->id);
-        if ($data->price == null || $data->price == '0') {
+        if ($data->price == 0) {
             if ($lang == 'ar') {
                 $data->price = 'اسأل البائع';
             } else {
@@ -267,7 +267,7 @@ class ProductController extends Controller
             ->limit(3)
             ->get()
             ->map(function ($ads) use ($lang) {
-                if ($ads->price == null || $ads->price == '0') {
+                if ($ads->price == 0) {
                     if ($lang == 'ar') {
                         $ads->price = 'اسأل البائع';
                     } else {
@@ -296,7 +296,7 @@ class ProductController extends Controller
             ->limit(3)
             ->get()
             ->map(function ($ads) use ($lang) {
-                if ($ads->price == null || $ads->price == '0') {
+                if ($ads->price == 0) {
                     if ($lang == 'ar') {
                         $ads->price = 'اسأل البائع';
                     } else {
@@ -398,7 +398,7 @@ class ProductController extends Controller
            ->where('publish','Y')
            ->where('deleted','0')
            ->get()->map(function($data) use($lang,$user_id){
-               if ($data->price == null || $data->price == '0') {
+               if ($data->price == 0) {
                    if ($lang == 'ar') {
                        $data->price = 'اسأل البائع';
                    } else {
@@ -507,7 +507,7 @@ class ProductController extends Controller
             ->orderBy('created_at', 'desc')
             ->simplePaginate(12);
         for ($i = 0; $i < count($products); $i++) {
-            if ($products[$i]['price'] == null || $products[$i]['price'] == '0') {
+            if ($products[$i]['price'] == 0) {
                 if ($lang == 'ar') {
                     $products[$i]['price'] = 'اسأل البائع';
                 } else {
