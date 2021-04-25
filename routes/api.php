@@ -50,6 +50,7 @@ use Illuminate\Http\Request;
     });
 
     Route::get('ad_owner_profile/{id}/{lang}/{v}' , 'UserController@getownerprofile')->middleware('checkguest');
+    Route::get('ad_owner_info/{id}/{lang}/{v}' , 'ProductController@ad_owner_info')->middleware('checkguest');
 
     Route::get('products/{lang}/{v}' , 'ProductController@getproducts')->middleware('checkguest');
     Route::get('products/search/{lang}/{v}' , 'ProductController@getsearch')->middleware('checkguest');

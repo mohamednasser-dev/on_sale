@@ -195,7 +195,7 @@ class HomeController extends Controller
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($ads) use ($lang) {
-                if ($ads->price == null) {
+                if ($ads->price == null || $ads->price == '0') {
                     if ($lang == 'ar') {
                         $ads->price = 'اسأل البائع';
                     } else {

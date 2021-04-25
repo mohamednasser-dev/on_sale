@@ -31,7 +31,7 @@ class ProductController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['current_ads','ended_ads','max_min_price','filter','offer_ads', 'republish_ad','areas', 'cities', 'third_step_excute_pay', 'save_third_step_with_money', 'update_ad', 'select_ad_data', 'delete_my_ad', 'save_third_
+        $this->middleware('auth:api', ['except' => ['ad_owner_info','current_ads', 'ended_ads', 'max_min_price', 'filter', 'offer_ads', 'republish_ad', 'areas', 'cities', 'third_step_excute_pay', 'save_third_step_with_money', 'update_ad', 'select_ad_data', 'delete_my_ad', 'save_third_
         step', 'save_second_step', 'save_first_step', 'getdetails', 'last_seen', 'getoffers', 'getproducts', 'getsearch', 'getFeatureOffers']]);
         //        --------------------------------------------- begin scheduled functions --------------------------------------------------------
 
@@ -195,7 +195,7 @@ class ProductController extends Controller
         $data = Product::with('Product_user')
             ->select('id', 'title', 'main_image', 'description', 'price', 'type', 'publication_date as date', 'user_id', 'category_id')
             ->find($request->id);
-        if ($data->price == null) {
+        if ($data->price == null || $data->price == '0') {
             if ($lang == 'ar') {
                 $data->price = 'اسأل البائع';
             } else {
@@ -230,10 +230,10 @@ class ProductController extends Controller
             $feature_data[$key]['image'] = $feature->Option->image;
             if ($feature->type == 'manual') {
                 $feature_data[$key]['title'] = $feature->Option->title;
-                $feature_data[$key]['value'] =  $feature->target_id;
+                $feature_data[$key]['value'] = $feature->target_id;
             } else if ($feature->type == 'option') {
-                $feature_data[$key]['title'] = $feature->Option->title ;
-                $feature_data[$key]['value'] =  $feature->Option_value->value;
+                $feature_data[$key]['title'] = $feature->Option->title;
+                $feature_data[$key]['value'] = $feature->Option_value->value;
             }
         }
         if ($user) {
@@ -267,7 +267,7 @@ class ProductController extends Controller
             ->limit(3)
             ->get()
             ->map(function ($ads) use ($lang) {
-                if ($ads->price == null) {
+                if ($ads->price == null || $ads->price == '0') {
                     if ($lang == 'ar') {
                         $ads->price = 'اسأل البائع';
                     } else {
@@ -281,7 +281,7 @@ class ProductController extends Controller
         foreach ($user_other_ads as $key => $row) {
             $user_ids[$key] = $row->id;
         }
-        if($user_other_ads == null){
+        if ($user_other_ads == null) {
             $user_ids[0] = 0;
             $user_other_ads = (object)[];
         }
@@ -296,14 +296,14 @@ class ProductController extends Controller
             ->limit(3)
             ->get()
             ->map(function ($ads) use ($lang) {
-                if ($ads->price == null) {
+                if ($ads->price == null || $ads->price == '0') {
                     if ($lang == 'ar') {
                         $ads->price = 'اسأل البائع';
                     } else {
                         $ads->price = 'Ask the seller';
                     }
                 }
-                $ads->time = APIHelpers::get_month_year($ads->created_at , $lang);
+                $ads->time = APIHelpers::get_month_year($ads->created_at, $lang);
                 return $ads;
             });
         for ($i = 0; $i < count($related); $i++) {
@@ -387,6 +387,44 @@ class ProductController extends Controller
 
     }
 
+    public function ad_owner_info(Request $request , $id)
+    {
+        $user_id = auth()->user()->id ;
+        $lang = $request->lang ;
+       $data['basic_info'] = User::select('id','name','email','image','phone')->where('id',$id)->first();
+       $data['ads'] = Product::select('id', 'title', 'price', 'main_image')
+           ->where('user_id',$id)
+           ->where('status',1)
+           ->where('publish','Y')
+           ->where('deleted','0')
+           ->get()->map(function($data) use($lang,$user_id){
+               if ($data->price == null || $data->price == '0') {
+                   if ($lang == 'ar') {
+                       $data->price = 'اسأل البائع';
+                   } else {
+                       $data->price = 'Ask the seller';
+                   }
+               }
+               if ($user_id) {
+                   $favorite = Favorite::where('user_id', $user_id)->where('product_id', $data->id )->first();
+                   if ($favorite) {
+                       $data->favorite = true;
+                   } else {
+                       $data->favorite = false;
+                   }
+               } else {
+                   $data->favorite = false;
+               }
+
+               return $data ;
+           });
+
+
+        $response = APIHelpers::createApiResponse(false, 200, '', '', $data, $request->lang);
+        return response()->json($response, 200);
+
+    }
+
     public function getsearch(Request $request)
     {
         $lang = $request->lang;
@@ -418,7 +456,7 @@ class ProductController extends Controller
             } else {
                 $products[$i]['favorite'] = false;
             }
-            $products[$i]['time'] =APIHelpers::get_month_day($products[$i]['created_at'],$lang);
+            $products[$i]['time'] = APIHelpers::get_month_day($products[$i]['created_at'], $lang);
         }
         $response = APIHelpers::createApiResponse(false, 200, '', '', $products, $request->lang);
         return response()->json($response, 200);
@@ -427,9 +465,12 @@ class ProductController extends Controller
 
     public function filter(Request $request)
     {
-        $lang = $request->lang ;
+        $lang = $request->lang;
         $result = Product::query();
-        $result = $result->where('publish', 'Y')->where('status', 1)->orWhere('price',null)->where('deleted', 0);
+        $result = $result->where('publish', 'Y')
+            ->where('status', 1)
+//            ->orWhere('price', null)
+            ->where('deleted', 0);
         if ($request->from_price != null && $request->to_price != null) {
             $result = $result->whereRaw('price BETWEEN ' . $request->from_price . ' AND ' . $request->to_price . '');
         }
@@ -454,19 +495,19 @@ class ProductController extends Controller
         if ($request->sub_category_level5_id != null) {
             $result = $result->where('sub_category_five_id', $request->sub_category_level5_id);
         }
-        if($request->options != null){
+        if ($request->options != null) {
             $product_ids[] = null;
-            foreach ($request->options as $key => $row){
-                $product_ids = Product_feature::where('option_id',$row['option_id'])->where('target_id',$row['option_value'])->pluck('product_id')->toArray();
+            foreach ($request->options as $key => $row) {
+                $product_ids = Product_feature::where('option_id', $row['option_id'])->where('target_id', $row['option_value'])->pluck('product_id')->toArray();
             }
             $result = $result->whereIn('id', $product_ids);
         }
         $products = $result->select('id', 'title', 'price', 'main_image as image', 'pin', 'created_at')
-                        ->orderBy('pin', 'desc')
-                        ->orderBy('created_at', 'desc')
-                        ->simplePaginate(12);
+            ->orderBy('pin', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->simplePaginate(12);
         for ($i = 0; $i < count($products); $i++) {
-            if ($products[$i]['price'] == null) {
+            if ($products[$i]['price'] == null || $products[$i]['price'] == '0') {
                 if ($lang == 'ar') {
                     $products[$i]['price'] = 'اسأل البائع';
                 } else {
@@ -495,17 +536,48 @@ class ProductController extends Controller
 
     public function max_min_price(Request $request)
     {
-        $products = Product::where('publish', 'Y')->where('status', 1)->where('deleted', 0)->where('price','!=',null)->orderBy('price','desc')->get();
-        $data['max'] = $products->last()->price;
-        $data['min'] = $products->first()->price;
+        $result = Product::query();
+        $result = $result->where('publish', 'Y')
+            ->where('status', 1)
+            ->where('deleted', 0)
+            ->where('price', '!=', null)
+            ->where('category_id', $request->category_id)
+            ->orderBy('price', 'asc');
 
-        $null_price = Product::where('publish', 'Y')->where('status', 1)->where('deleted', 0)->where('price',null)->get();
-        if(count($null_price) > 0){
+        if ($request->category_id != null) {
+            $result = $result->where('category_id', $request->category_id);
+        }
+
+
+        if ($request->sub_category_level1_id != null) {
+            $result = $result->where('sub_category_id', $request->sub_category_level1_id);
+        }
+        if ($request->sub_category_level2_id != null) {
+            $result = $result->where('sub_category_two_id', $request->sub_category_level2_id);
+        }
+        if ($request->sub_category_level3_id != null) {
+            $result = $result->where('sub_category_three_id', $request->sub_category_level3_id);
+        }
+        if ($request->sub_category_level4_id != null) {
+            $result = $result->where('sub_category_four_id', $request->sub_category_level4_id);
+        }
+        if ($request->sub_category_level5_id != null) {
+            $result = $result->where('sub_category_five_id', $request->sub_category_level5_id);
+        }
+        $result = $result->get();
+
+
+        $data['max'] = $result->last()->price;
+        $data['min'] = $result->first()->price;
+
+        $null_price = Product::where('publish', 'Y')->where('status', 1)->where('deleted', 0)->where('price', null)->get();
+        if (count($null_price) > 0) {
             $data['min'] = "0";
         }
         $response = APIHelpers::createApiResponse(false, 200, '', '', $data, $request->lang);
         return response()->json($response, 200);
     }
+
     public function getFeatureOffers(Request $request)
     {
         $products = Product::where('feature', 1)
@@ -619,12 +691,14 @@ class ProductController extends Controller
                     $image_new_name = $image_id . '.' . $image_format;
                     $input['main_image'] = $image_new_name;
                     //create final
+
+                    dd($input);
                     $ad_data = Product::create($input);
 
                     //save product feature ...
-                    if($request->options != null){
+                    if ($request->options != null) {
                         foreach ($request->options as $key => $option) {
-                            if($option['option_value'] != null){
+                            if ($option['option_value'] != null) {
                                 if (is_numeric($option['option_value'])) {
                                     $option_values = Category_option_value::where('id', $option['option_value'])->first();
                                     if ($option_values != null) {
@@ -666,6 +740,7 @@ class ProductController extends Controller
             }
         }
     }
+
     public function save_second_step(Request $request)
     {
         $input = $request->all();
@@ -1007,6 +1082,7 @@ class ProductController extends Controller
             return response()->json($response, 406);
         }
     }
+
     public function select_ended_ads(Request $request)
     {
         $ads['ended_ads'] = Product::where('status', 2)
@@ -1030,6 +1106,7 @@ class ProductController extends Controller
             return response()->json($response, 200);
         }
     }
+
     public function ended_ads(Request $request)
     {
         $data = Product::where('status', 2)
@@ -1046,6 +1123,7 @@ class ProductController extends Controller
             return response()->json($response, 200);
         }
     }
+
     public function current_ads(Request $request)
     {
         $data = Product::where('status', 1)
@@ -1214,104 +1292,105 @@ class ProductController extends Controller
             return response()->json($response, 406);
         }
     }
+
     public function select_ad_data(Request $request, $id)
     {
-        Session::put('local_api',$request->lang);
+        Session::put('local_api', $request->lang);
         $data['ad'] = Product::where('id', $id)
             ->with('City_api')
             ->with('Area_api')
-            ->select('id', 'category_id', 'sub_category_id', 'sub_category_two_id', 'sub_category_three_id', 'sub_category_four_id', 'sub_category_five_id', 'title', 'price', 'description', 'main_image','city_id','area_id','share_location','latitude','longitude')
+            ->select('id', 'category_id', 'sub_category_id', 'sub_category_two_id', 'sub_category_three_id', 'sub_category_four_id', 'sub_category_five_id', 'title', 'price', 'description', 'main_image', 'city_id', 'area_id', 'share_location', 'latitude', 'longitude')
             ->first();
-        if($data['ad']->share_location == '1'){
-            $data['ad']->share_location = true ;
-        }else{
-            $data['ad']->share_location = false ;
+        if ($data['ad']->share_location == '1') {
+            $data['ad']->share_location = true;
+        } else {
+            $data['ad']->share_location = false;
         }
         $data['ad_images'] = ProductImage::where('product_id', $id)->select('id', 'image', 'product_id')->get();
-        if($request->lang == 'ar'){
-            if($data['ad']->city_id != null) {
+        if ($request->lang == 'ar') {
+            if ($data['ad']->city_id != null) {
                 $cat_data_city = City::find($data['ad']->city_id);
-                $data['area_names'] =   $cat_data_city->title_ar;
+                $data['area_names'] = $cat_data_city->title_ar;
             }
-            if($data['ad']->area_id != null) {
+            if ($data['ad']->area_id != null) {
                 $cat_data_area = Area::find($data['ad']->area_id);
-                $data['area_names'] =   $data['area_names'] . '/'.$cat_data_area->title_ar;
+                $data['area_names'] = $data['area_names'] . '/' . $cat_data_area->title_ar;
             }
-            if($data['ad']->category_id != null) {
+            if ($data['ad']->category_id != null) {
                 $cat_data = Category::find($data['ad']->category_id);
-                $data['category_names'] =   $cat_data->title_ar;
+                $data['category_names'] = $cat_data->title_ar;
             }
-            if($data['ad']->sub_category_id != null){
+            if ($data['ad']->sub_category_id != null) {
                 $scat_data = SubCategory::find($data['ad']->sub_category_id);
-                $data['category_names'] = $data['category_names'] . '/'.$scat_data->title_ar;
+                $data['category_names'] = $data['category_names'] . '/' . $scat_data->title_ar;
             }
-            if($data['ad']->sub_category_two_id != null){
+            if ($data['ad']->sub_category_two_id != null) {
                 $sscat_data = SubTwoCategory::find($data['ad']->sub_category_two_id);
-                $data['category_names'] = $data['category_names'] . '/'.$sscat_data->title_ar;
+                $data['category_names'] = $data['category_names'] . '/' . $sscat_data->title_ar;
             }
-            if($data['ad']->sub_category_three_id != null){
+            if ($data['ad']->sub_category_three_id != null) {
                 $ssscat_data = SubThreeCategory::find($data['ad']->sub_category_three_id);
-                $data['category_names'] = $data['category_names'] . '/'.$ssscat_data->title_ar;
+                $data['category_names'] = $data['category_names'] . '/' . $ssscat_data->title_ar;
             }
-            if($data['ad']->sub_category_four_id != null){
+            if ($data['ad']->sub_category_four_id != null) {
                 $sssscat_data = SubFourCategory::find($data['ad']->sub_category_four_id);
-                $data['category_names'] = $data['category_names'] . '/'.$sssscat_data->title_ar;
+                $data['category_names'] = $data['category_names'] . '/' . $sssscat_data->title_ar;
             }
-            if($data['ad']->sub_category_five_id != null){
+            if ($data['ad']->sub_category_five_id != null) {
                 $ssssscat_data = SubFiveCategory::find($data['ad']->sub_category_five_id);
-                $data['category_names'] = $data['category_names'] . '/'.$ssssscat_data->title_ar;
+                $data['category_names'] = $data['category_names'] . '/' . $ssssscat_data->title_ar;
             }
-        }else{
-            if($data['ad']->city_id != null) {
+        } else {
+            if ($data['ad']->city_id != null) {
                 $cat_data_city = City::find($data['ad']->city_id);
-                $data['area_names'] =   $cat_data_city->title_en;
+                $data['area_names'] = $cat_data_city->title_en;
             }
-            if($data['ad']->area_id != null) {
+            if ($data['ad']->area_id != null) {
                 $cat_data_area = Area::find($data['ad']->area_id);
-                $data['area_names'] =   $data['area_names'] . '/'.$cat_data_area->title_en;
+                $data['area_names'] = $data['area_names'] . '/' . $cat_data_area->title_en;
             }
-            if($data['ad']->category_id != null) {
+            if ($data['ad']->category_id != null) {
                 $cat_data = Category::find($data['ad']->category_id);
-                $data['category_names'] =   $cat_data->title_en;
+                $data['category_names'] = $cat_data->title_en;
             }
-            if($data['ad']->sub_category_id != null){
+            if ($data['ad']->sub_category_id != null) {
                 $scat_data = SubCategory::find($data['ad']->sub_category_id);
-                $data['category_names'] = $data['category_names'] . '/'.$scat_data->title_en;
+                $data['category_names'] = $data['category_names'] . '/' . $scat_data->title_en;
             }
-            if($data['ad']->sub_category_two_id != null){
+            if ($data['ad']->sub_category_two_id != null) {
                 $sscat_data = SubTwoCategory::find($data['ad']->sub_category_two_id);
-                $data['category_names'] = $data['category_names'] . '/'.$sscat_data->title_en;
+                $data['category_names'] = $data['category_names'] . '/' . $sscat_data->title_en;
             }
-            if($data['ad']->sub_category_three_id != null){
+            if ($data['ad']->sub_category_three_id != null) {
                 $ssscat_data = SubThreeCategory::find($data['ad']->sub_category_three_id);
-                $data['category_names'] = $data['category_names'] . '/'.$ssscat_data->title_en;
+                $data['category_names'] = $data['category_names'] . '/' . $ssscat_data->title_en;
             }
-            if($data['ad']->sub_category_four_id != null){
+            if ($data['ad']->sub_category_four_id != null) {
                 $sssscat_data = SubFourCategory::find($data['ad']->sub_category_four_id);
-                $data['category_names'] = $data['category_names'] . '/'.$sssscat_data->title_en;
+                $data['category_names'] = $data['category_names'] . '/' . $sssscat_data->title_en;
             }
-            if($data['ad']->sub_category_five_id != null){
+            if ($data['ad']->sub_category_five_id != null) {
                 $ssssscat_data = SubFiveCategory::find($data['ad']->sub_category_five_id);
-                $data['category_names'] = $data['category_names'] . '/'.$ssssscat_data->title_en;
+                $data['category_names'] = $data['category_names'] . '/' . $ssssscat_data->title_en;
             }
         }
 
-        $features = Product_feature::where('product_id',$id)
-            ->select('id','type','product_id','target_id','option_id')
-            ->orderBy('option_id','asc')
+        $features = Product_feature::where('product_id', $id)
+            ->select('id', 'type', 'product_id', 'target_id', 'option_id')
+            ->orderBy('option_id', 'asc')
             ->get();
 
         foreach ($features as $key => $feature) {
-            if($feature->type == 'manual'){
+            if ($feature->type == 'manual') {
                 $features[$key]['type'] = 'input';
                 $features[$key]['value'] = $feature->target_id;
-            }else if($feature->type == 'option'){
-                $features[$key]['type'] =  'select';
-                $target_data = Category_option_value::where('id',$feature->target_id)->first();
-                if($request->lang == 'ar')
-                    $features[$key]['value'] =  $target_data->value_ar;
-                else{
-                    $features[$key]['value'] =  $target_data->value_en;
+            } else if ($feature->type == 'option') {
+                $features[$key]['type'] = 'select';
+                $target_data = Category_option_value::where('id', $feature->target_id)->first();
+                if ($request->lang == 'ar')
+                    $features[$key]['value'] = $target_data->value_ar;
+                else {
+                    $features[$key]['value'] = $target_data->value_en;
                 }
             }
         }
@@ -1355,10 +1434,10 @@ class ProductController extends Controller
     public function update_ad(Request $request, $id)
     {
         $input = $request->all();
-        $product = Product::where('id',$id)->first();
-        if($product == null){
-            $response = APIHelpers::createApiResponse(true , 406 , 'ad not exists' ,'لا يوجد اعلان بهذا ال id' , null , $request->lang);
-            return response()->json($response , 406);
+        $product = Product::where('id', $id)->first();
+        if ($product == null) {
+            $response = APIHelpers::createApiResponse(true, 406, 'ad not exists', 'لا يوجد اعلان بهذا ال id', null, $request->lang);
+            return response()->json($response, 406);
         }
         $validator = Validator::make($input, [
             'category_id' => 'required',
@@ -1414,22 +1493,22 @@ class ProductController extends Controller
             unset($input['images']);
             unset($input['options']);
             $updated = Product::where('id', $id)->update($input);
-            if($request->options != null){
-                Product_feature::where('product_id',$id)->delete();
-                foreach ($request->options as $key => $option){
-                    if(is_numeric($option['option_value'])) {
+            if ($request->options != null) {
+                Product_feature::where('product_id', $id)->delete();
+                foreach ($request->options as $key => $option) {
+                    if (is_numeric($option['option_value'])) {
                         $option_values = Category_option_value::where('id', $option['option_value'])->first();
                         if ($option_values != null) {
                             $feature_data['type'] = 'option';
                         } else {
                             $feature_data['type'] = 'manual';
                         }
-                    }else{
+                    } else {
                         $feature_data['type'] = 'manual';
                     }
-                    $feature_data['product_id'] = $id ;
+                    $feature_data['product_id'] = $id;
                     $feature_data['target_id'] = $option['option_value'];
-                    $feature_data['option_id'] =  $option['option_id'];
+                    $feature_data['option_id'] = $option['option_id'];
                     Product_feature::create($feature_data);
                 }
             }
@@ -1462,6 +1541,7 @@ class ProductController extends Controller
         $response = APIHelpers::createApiResponse(false, 200, '', '', array('cities' => $cities), $request->lang);
         return response()->json($response, 200);
     }
+
     public function areas(Request $request)
     {
         Session::put('api_lang', $request->lang);
