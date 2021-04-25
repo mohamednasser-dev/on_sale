@@ -598,6 +598,7 @@ class ProductController extends Controller
     public function save_first_step(Request $request)
     {
         $input = $request->all();
+
         $validator = Validator::make($input, [
             'category_id' => 'required',
             'sub_category_id' => 'required',
@@ -691,8 +692,9 @@ class ProductController extends Controller
                     $image_new_name = $image_id . '.' . $image_format;
                     $input['main_image'] = $image_new_name;
                     //create final
-
-                    dd($input);
+                    if($input['price'] == null) {
+                        $input['price'] = '0';
+                    }
                     $ad_data = Product::create($input);
 
                     //save product feature ...
