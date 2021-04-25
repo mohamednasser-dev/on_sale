@@ -103,11 +103,10 @@ class PlanController extends Controller
     public function select_all_plans(Request $request,$cat_id) {
         $lang = $request->lang;
             $data['plans'] = Plan::with('Details')
-                ->where('deleted','0')
-                ->where('status' , 'show')
                 ->where('cat_id' , $cat_id)
-                ->where('deleted' ,'0')
                 ->orwhere('cat_id' , 'all')
+                ->where('status' , 'show')
+                ->where('deleted','0')
                 ->select('id' ,'title_ar as title' , 'title_en' ,'cat_id','price')
                 ->get()
                 ->map(function($plans) use ($lang) {
