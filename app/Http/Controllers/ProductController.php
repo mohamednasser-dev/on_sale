@@ -474,7 +474,7 @@ class ProductController extends Controller
         if ($request->from_price != null && $request->to_price != null) {
             $result = $result->whereRaw('price BETWEEN ' . $request->from_price . ' AND ' . $request->to_price . '');
         }
-        if ($request->area_id != null) {
+        if ($request->area_id != null || $request->area_id != 0 ) {
             $result = $result->where('area_id', $request->area_id);
         }
         if ($request->category_id != null) {
