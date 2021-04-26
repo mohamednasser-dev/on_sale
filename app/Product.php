@@ -39,6 +39,14 @@ class Product extends Model
         return $this->belongsTo('App\Area', 'area_id');
     }
 
+    public function Area_name() {
+        if(session('lang') == 'ar') {
+            return $this->belongsTo('App\Area', 'area_id')->select('id','title_ar as title');
+        }else{
+            return $this->belongsTo('App\Area', 'area_id')->select('id','title_en as title');
+        }
+    }
+
     public function City_api() {
         if(session('local_api') == 'ar'){
             return $this->belongsTo('App\City', 'city_id')->select('id','title_ar as title');

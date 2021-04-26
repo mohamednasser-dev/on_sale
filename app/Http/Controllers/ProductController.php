@@ -192,8 +192,8 @@ class ProductController extends Controller
         $user = auth()->user();
         $lang = $request->lang;
         Session::put('lang', $lang);
-        $data = Product::with('Product_user')
-            ->select('id', 'title', 'main_image', 'description', 'price', 'type', 'publication_date as date', 'user_id', 'category_id')
+        $data = Product::with('Product_user')->with('Area_name')
+            ->select('id', 'title', 'main_image', 'description', 'price', 'type', 'publication_date as date', 'user_id', 'category_id','latitude','longitude','share_location','area_id')
             ->find($request->id);
         if ($data->price == 0) {
             if ($lang == 'ar') {
@@ -201,6 +201,12 @@ class ProductController extends Controller
             } else {
                 $data->price = 'Ask the seller';
             }
+        }
+
+        if ($data->share_location == '0') {
+            $data->share_location = 0 ;
+        }else{
+            $data->share_location = 1 ;
         }
         $user_ip_address = $request->ip();
         if ($user == null) {
@@ -389,15 +395,15 @@ class ProductController extends Controller
 
     public function ad_owner_info(Request $request , $id)
     {
-        $user_id = auth()->user()->id ;
+        $user = auth()->user() ;
         $lang = $request->lang ;
-       $data['basic_info'] = User::select('id','name','email','image','phone')->where('id',$id)->first();
-       $data['ads'] = Product::select('id', 'title', 'price', 'main_image')
+        $data['basic_info'] = User::select('id','name','email','image','phone')->where('id',$id)->first();
+        $data['ads'] = Product::select('id', 'title', 'price', 'main_image')
            ->where('user_id',$id)
            ->where('status',1)
            ->where('publish','Y')
            ->where('deleted','0')
-           ->get()->map(function($data) use($lang,$user_id){
+           ->get()->map(function($data) use($lang,$user){
                if ($data->price == 0) {
                    if ($lang == 'ar') {
                        $data->price = 'اسأل البائع';
@@ -405,8 +411,8 @@ class ProductController extends Controller
                        $data->price = 'Ask the seller';
                    }
                }
-               if ($user_id) {
-                   $favorite = Favorite::where('user_id', $user_id)->where('product_id', $data->id )->first();
+               if ($user != null) {
+                   $favorite = Favorite::where('user_id', $user->id)->where('product_id', $data->id )->first();
                    if ($favorite) {
                        $data->favorite = true;
                    } else {
@@ -474,7 +480,7 @@ class ProductController extends Controller
         if ($request->from_price != null && $request->to_price != null) {
             $result = $result->whereRaw('price BETWEEN ' . $request->from_price . ' AND ' . $request->to_price . '');
         }
-        if ($request->area_id != null || $request->area_id != 0 ) {
+        if ($request->area_id != null || $request->area_id != 0 || $request->area_id != '0' ) {
             $result = $result->where('area_id', $request->area_id);
         }
         if ($request->category_id != null) {
