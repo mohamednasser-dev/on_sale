@@ -475,12 +475,11 @@ class ProductController extends Controller
         $result = Product::query();
         $result = $result->where('publish', 'Y')
             ->where('status', 1)
-//            ->orWhere('price', null)
             ->where('deleted', 0);
         if ($request->from_price != null && $request->to_price != null) {
             $result = $result->whereRaw('price BETWEEN ' . $request->from_price . ' AND ' . $request->to_price . '');
         }
-        if ($request->area_id != null || $request->area_id != 0 || $request->area_id != '0' ) {
+        if ($request->area_id != 0) {
             $result = $result->where('area_id', $request->area_id);
         }
         if ($request->category_id != null) {
