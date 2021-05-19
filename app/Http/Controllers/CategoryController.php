@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Participant;
 use Illuminate\Support\Facades\Validator;
 use App\Category_option_value;
 use Illuminate\Http\Request;
@@ -161,8 +162,16 @@ class CategoryController extends Controller
                 } else {
                     $products[$i]['favorite'] = false;
                 }
+
+                $conversation = Participant::where('ad_product_id',$products[$i]['id'])->where('user_id', $user->id)->first();
+                if($conversation == null){
+                    $products[$i]['conversation_id'] = 0 ;
+                }else{
+                    $products[$i]['conversation_id'] = $conversation->conversation_id ;
+                }
             } else {
                 $products[$i]['favorite'] = false;
+                $products[$i]['conversation_id'] =  0;
             }
             $products[$i]['time'] =APIHelpers::get_month_day($products[$i]['created_at'],$lang);
         }
@@ -293,8 +302,15 @@ class CategoryController extends Controller
                 } else {
                     $products[$i]['favorite'] = false;
                 }
+                $conversation = Participant::where('ad_product_id',$products[$i]['id'])->where('user_id', $user->id)->first();
+                if($conversation == null){
+                    $products[$i]['conversation_id'] = 0 ;
+                }else{
+                    $products[$i]['conversation_id'] = $conversation->conversation_id ;
+                }
             } else {
                 $products[$i]['favorite'] = false;
+                $products[$i]['conversation_id'] = 0 ;
             }
             $products[$i]['time'] =APIHelpers::get_month_day($products[$i]['created_at'],$lang);
         }
@@ -432,8 +448,15 @@ class CategoryController extends Controller
                 } else {
                     $products[$i]['favorite'] = false;
                 }
+                $conversation = Participant::where('ad_product_id',$products[$i]['id'])->where('user_id', $user->id)->first();
+                if($conversation == null){
+                    $products[$i]['conversation_id'] = 0 ;
+                }else{
+                    $products[$i]['conversation_id'] = $conversation->conversation_id ;
+                }
             } else {
                 $products[$i]['favorite'] = false;
+                $products[$i]['conversation_id'] = 0 ;
             }
             $products[$i]['time'] =APIHelpers::get_month_day($products[$i]['created_at'],$lang);
         }
@@ -568,8 +591,15 @@ class CategoryController extends Controller
                 } else {
                     $products[$i]['favorite'] = false;
                 }
+                $conversation = Participant::where('ad_product_id',$products[$i]['id'])->where('user_id', $user->id)->first();
+                if($conversation == null){
+                    $products[$i]['conversation_id'] = 0 ;
+                }else{
+                    $products[$i]['conversation_id'] = $conversation->conversation_id ;
+                }
             } else {
                 $products[$i]['favorite'] = false;
+                $products[$i]['conversation_id'] = 0 ;
             }
             $products[$i]['time'] =APIHelpers::get_month_day($products[$i]['created_at'],$lang);
         }
@@ -668,8 +698,15 @@ class CategoryController extends Controller
                 } else {
                     $products[$i]['favorite'] = false;
                 }
+                $conversation = Participant::where('ad_product_id',$products[$i]['id'])->where('user_id', $user->id)->first();
+                if($conversation == null){
+                    $products[$i]['conversation_id'] = 0 ;
+                }else{
+                    $products[$i]['conversation_id'] = $conversation->conversation_id ;
+                }
             } else {
                 $products[$i]['favorite'] = false;
+                $products[$i]['conversation_id'] = 0 ;
             }
             $month = $products[$i]['created_at']->format('F');
             $products[$i]['time'] =APIHelpers::get_month_day($products[$i]['created_at'],$lang);
