@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Category;
+use App\ContactUs;
+use App\Conversation;
+use App\Participant;
 use App\SubCategory;
 use App\SubFiveCategory;
 use App\SubFourCategory;
@@ -249,8 +252,16 @@ class ProductController extends Controller
             } else {
                 $data->favorite = false;
             }
+            $conversation = Participant::where('ad_product_id',$data->id)->where('user_id', $user->id)->first();
+            if($conversation == null){
+                $data->conversation_id = 0 ;
+            }else{
+                $data->conversation_id = $conversation->conversation_id ;
+            }
+
         } else {
             $data->favorite = false;
+            $data->conversation_id = 0;
         }
         $date = date_create($data->date);
         $data->date = date_format($date, 'd M Y');
@@ -325,6 +336,7 @@ class ProductController extends Controller
             }
         }
         $views = Product_view::where('product_id', $data->id)->count();
+
         $response = APIHelpers::createApiResponse(false, 200, '', '', array('product' => $data,
             'features' => $feature_data, 'user_other_ads' => $user_other_ads, 'related' => $related, 'views' => $views), $request->lang);
         return response()->json($response, 200);
