@@ -34,7 +34,7 @@ class ProductController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['ad_owner_info','current_ads', 'ended_ads', 'max_min_price', 'filter', 'offer_ads', 'republish_ad', 'areas', 'cities', 'third_step_excute_pay', 'save_third_step_with_money', 'update_ad', 'select_ad_data', 'delete_my_ad', 'save_third_
+        $this->middleware('auth:api', ['except' => ['ad_owner_info', 'current_ads', 'ended_ads', 'max_min_price', 'filter', 'offer_ads', 'republish_ad', 'areas', 'cities', 'third_step_excute_pay', 'save_third_step_with_money', 'update_ad', 'select_ad_data', 'delete_my_ad', 'save_third_
         step', 'save_second_step', 'save_first_step', 'getdetails', 'last_seen', 'getoffers', 'getproducts', 'getsearch', 'getFeatureOffers']]);
         //        --------------------------------------------- begin scheduled functions --------------------------------------------------------
 
@@ -196,7 +196,7 @@ class ProductController extends Controller
         $lang = $request->lang;
         Session::put('lang', $lang);
         $data = Product::with('Product_user')->with('Area_name')
-            ->select('id', 'title', 'main_image', 'description', 'price', 'type', 'publication_date as date', 'user_id', 'category_id','latitude','longitude','share_location','area_id')
+            ->select('id', 'title', 'main_image', 'description', 'price', 'type', 'publication_date as date', 'user_id', 'category_id', 'latitude', 'longitude', 'share_location', 'area_id')
             ->find($request->id);
         if ($data->price == 0) {
             if ($lang == 'ar') {
@@ -207,9 +207,9 @@ class ProductController extends Controller
         }
 
         if ($data->share_location == '0') {
-            $data->share_location = 0 ;
-        }else{
-            $data->share_location = 1 ;
+            $data->share_location = 0;
+        } else {
+            $data->share_location = 1;
         }
         $user_ip_address = $request->ip();
         if ($user == null) {
@@ -252,11 +252,11 @@ class ProductController extends Controller
             } else {
                 $data->favorite = false;
             }
-            $conversation = Participant::where('ad_product_id',$data->id)->where('user_id', $user->id)->first();
-            if($conversation == null){
-                $data->conversation_id = 0 ;
-            }else{
-                $data->conversation_id = $conversation->conversation_id ;
+            $conversation = Participant::where('ad_product_id', $data->id)->where('user_id', $user->id)->first();
+            if ($conversation == null) {
+                $data->conversation_id = 0;
+            } else {
+                $data->conversation_id = $conversation->conversation_id;
             }
 
         } else {
@@ -405,37 +405,37 @@ class ProductController extends Controller
 
     }
 
-    public function ad_owner_info(Request $request , $id)
+    public function ad_owner_info(Request $request, $id)
     {
-        $user = auth()->user() ;
-        $lang = $request->lang ;
-        $data['basic_info'] = User::select('id','name','email','image','phone')->where('id',$id)->first();
+        $user = auth()->user();
+        $lang = $request->lang;
+        $data['basic_info'] = User::select('id', 'name', 'email', 'image', 'phone')->where('id', $id)->first();
         $data['ads'] = Product::select('id', 'title', 'price', 'main_image')
-           ->where('user_id',$id)
-           ->where('status',1)
-           ->where('publish','Y')
-           ->where('deleted','0')
-           ->get()->map(function($data) use($lang,$user){
-               if ($data->price == 0) {
-                   if ($lang == 'ar') {
-                       $data->price = 'اسأل البائع';
-                   } else {
-                       $data->price = 'Ask the seller';
-                   }
-               }
-               if ($user != null) {
-                   $favorite = Favorite::where('user_id', $user->id)->where('product_id', $data->id )->first();
-                   if ($favorite) {
-                       $data->favorite = true;
-                   } else {
-                       $data->favorite = false;
-                   }
-               } else {
-                   $data->favorite = false;
-               }
+            ->where('user_id', $id)
+            ->where('status', 1)
+            ->where('publish', 'Y')
+            ->where('deleted', '0')
+            ->get()->map(function ($data) use ($lang, $user) {
+                if ($data->price == 0) {
+                    if ($lang == 'ar') {
+                        $data->price = 'اسأل البائع';
+                    } else {
+                        $data->price = 'Ask the seller';
+                    }
+                }
+                if ($user != null) {
+                    $favorite = Favorite::where('user_id', $user->id)->where('product_id', $data->id)->first();
+                    if ($favorite) {
+                        $data->favorite = true;
+                    } else {
+                        $data->favorite = false;
+                    }
+                } else {
+                    $data->favorite = false;
+                }
 
-               return $data ;
-           });
+                return $data;
+            });
 
 
         $response = APIHelpers::createApiResponse(false, 200, '', '', $data, $request->lang);
@@ -709,7 +709,7 @@ class ProductController extends Controller
                     $image_new_name = $image_id . '.' . $image_format;
                     $input['main_image'] = $image_new_name;
                     //create final
-                    if($input['price'] == null) {
+                    if ($input['price'] == null) {
                         $input['price'] = '0';
                     }
                     $ad_data = Product::create($input);
@@ -1515,20 +1515,22 @@ class ProductController extends Controller
             if ($request->options != null) {
                 Product_feature::where('product_id', $id)->delete();
                 foreach ($request->options as $key => $option) {
-                    if (is_numeric($option['option_value'])) {
-                        $option_values = Category_option_value::where('id', $option['option_value'])->first();
-                        if ($option_values != null) {
-                            $feature_data['type'] = 'option';
+                    if ($option['option_value'] != null) {
+                        if (is_numeric($option['option_value'])) {
+                            $option_values = Category_option_value::where('id', $option['option_value'])->first();
+                            if ($option_values != null) {
+                                $feature_data['type'] = 'option';
+                            } else {
+                                $feature_data['type'] = 'manual';
+                            }
                         } else {
                             $feature_data['type'] = 'manual';
                         }
-                    } else {
-                        $feature_data['type'] = 'manual';
+                        $feature_data['product_id'] = $id;
+                        $feature_data['target_id'] = $option['option_value'];
+                        $feature_data['option_id'] = $option['option_id'];
+                        Product_feature::create($feature_data);
                     }
-                    $feature_data['product_id'] = $id;
-                    $feature_data['target_id'] = $option['option_value'];
-                    $feature_data['option_id'] = $option['option_id'];
-                    Product_feature::create($feature_data);
                 }
             }
             if ($updated == 1) {
