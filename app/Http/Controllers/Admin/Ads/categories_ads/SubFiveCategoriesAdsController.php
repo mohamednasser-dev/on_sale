@@ -14,15 +14,15 @@ class SubFiveCategoriesAdsController extends AdminController
     {
         $data = SubFiveCategory::where('sub_category_id' , $id)->where('deleted' , '0')->orderBy('id' , 'desc')->get();
         $cat_id = $id ;
-        return view('admin.ads.categories_ads.sub_catyegory.sub_two_category.sub_three_category.sub_four_category.sub_five_category.index' , compact('data','cat_id'));
+        return view('admin.ads.categories_ads.sub_category.sub_two_category.sub_three_category.sub_four_category.sub_five_category.index' , compact('data','cat_id'));
     }
     public function create($id)
     {
-        return view('admin.ads.categories_ads.sub_catyegory.sub_two_category.sub_three_category.sub_four_category.sub_five_category.create' , compact('id'));
+        return view('admin.ads.categories_ads.sub_category.sub_two_category.sub_three_category.sub_four_category.sub_five_category.create' , compact('id'));
     }
     public function create_all($id)
     {
-        return view('admin.ads.categories_ads.sub_catyegory.sub_two_category.sub_three_category.sub_four_category.sub_five_category.create' ,compact('id'));
+        return view('admin.ads.categories_ads.sub_category.sub_two_category.sub_three_category.sub_four_category.sub_five_category.create' ,compact('id'));
     }
 
     public function store(Request $request)
@@ -79,6 +79,6 @@ class SubFiveCategoriesAdsController extends AdminController
     public function show($id)
     {
         $data = Categories_ad::where('cat_id',$id)->where('type','sub_five_category')->where('deleted' , '0')->orderBy('id' , 'desc')->get();
-        return view('admin.ads.categories_ads.sub_catyegory.sub_two_category.sub_three_category.sub_four_category.sub_five_category.ads' , compact('data','id'));
+        return view('admin.ads.categories_ads.sub_category.sub_two_category.sub_three_category.sub_four_category.sub_five_category.ads' , compact('data','id'));
     }
 }

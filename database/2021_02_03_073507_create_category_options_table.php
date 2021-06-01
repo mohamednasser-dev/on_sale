@@ -13,7 +13,7 @@ class CreateCategoryOptionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('category_options', function (Blueprint $table) {
+        Schema::create('sub_category_options', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('title_ar', 255);
             $table->string('title_en', 255);
@@ -31,6 +31,6 @@ class CreateCategoryOptionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('category_options');
+        Schema::dropIfExists('sub_category_options');
     }
 }

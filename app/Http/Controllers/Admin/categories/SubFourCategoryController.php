@@ -16,7 +16,7 @@ class SubFourCategoryController extends AdminController
     }
     public function create($id)
     {
-        return view('admin.categories.sub_catyegory.sub_two_category.sub_three_category.sub_four_category.create',compact('id'));
+        return view('admin.categories.sub_category.sub_two_category.sub_three_category.sub_four_category.create',compact('id'));
     }
     public function store(Request $request)
     {
@@ -42,12 +42,12 @@ class SubFourCategoryController extends AdminController
     {
         $cat_id = $id;
         $data = SubFourCategory::where('sub_category_id',$id)->where('deleted','0')->get();
-        return view('admin.categories.sub_catyegory.sub_two_category.sub_three_category.sub_four_category.index',compact('data','cat_id'));
+        return view('admin.categories.sub_category.sub_two_category.sub_three_category.sub_four_category.index',compact('data','cat_id'));
     }
 
     public function edit($id) {
         $data = SubFourCategory::where('id',$id)->first();
-        return view('admin.categories.sub_catyegory.sub_two_category.sub_three_category.sub_four_category.edit', compact('data'));
+        return view('admin.categories.sub_category.sub_two_category.sub_three_category.sub_four_category.edit', compact('data'));
     }
     public function update(Request $request, $id) {
         $model = SubFourCategory::where('id',$id)->first();

@@ -14,15 +14,15 @@ class SubCategoriesAdsController extends AdminController
     public function index($id){
         $data = SubCategory::where('category_id' , $id)->where('deleted' , 0)->orderBy('id' , 'desc')->get();
         $cat_id = $id ;
-        return view('admin.ads.categories_ads.sub_catyegory.index' , compact('data','cat_id'));
+        return view('admin.ads.categories_ads.sub_category.index' , compact('data','cat_id'));
     }
     public function create($id)
     {
-        return view('admin.ads.categories_ads.sub_catyegory.create' , compact('id'));
+        return view('admin.ads.categories_ads.sub_category.create' , compact('id'));
     }
     public function create_all($id)
     {
-        return view('admin.ads.categories_ads.sub_catyegory.create' ,compact('id'));
+        return view('admin.ads.categories_ads.sub_category.create' ,compact('id'));
     }
 
     public function store(Request $request)
@@ -75,7 +75,7 @@ class SubCategoriesAdsController extends AdminController
     public function show($id)
     {
          $data = Categories_ad::where('cat_id',$id)->where('type','sub_category')->where('deleted' , '0')->orderBy('id' , 'desc')->get();
-        return view('admin.ads.categories_ads.sub_catyegory.ads' , compact('data','id'));
+        return view('admin.ads.categories_ads.sub_category.ads' , compact('data','id'));
     }
 
 }

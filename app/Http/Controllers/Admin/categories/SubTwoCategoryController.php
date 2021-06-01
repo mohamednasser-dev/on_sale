@@ -16,7 +16,7 @@ class SubTwoCategoryController extends AdminController
     }
     public function create($id)
     {
-        return view('admin.categories.sub_catyegory.sub_two_category.create',compact('id'));
+        return view('admin.categories.sub_category.sub_two_category.create',compact('id'));
     }
     public function store(Request $request)
     {
@@ -43,12 +43,12 @@ class SubTwoCategoryController extends AdminController
     {
         $cat_id = $id;
         $data = SubTwoCategory::where('sub_category_id',$id)->where('deleted','0')->get();
-        return view('admin.categories.sub_catyegory.sub_two_category.index',compact('data','cat_id'));
+        return view('admin.categories.sub_category.sub_two_category.index',compact('data','cat_id'));
     }
 
     public function edit($id) {
         $data = SubTwoCategory::where('id',$id)->first();
-        return view('admin.categories.sub_catyegory.sub_two_category.edit', compact('data'));
+        return view('admin.categories.sub_category.sub_two_category.edit', compact('data'));
     }
     public function update(Request $request, $id) {
         $model = SubTwoCategory::where('id',$id)->first();

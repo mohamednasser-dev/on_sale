@@ -19,7 +19,7 @@ class CreateCategoryOptionValuesTable extends Migration
             $table->string('value_ar', 255);
             $table->string('value_en', 255);
             $table->bigInteger('option_id')->unsigned()->nullable();
-            $table->foreign('option_id')->references('id')->on('category_options')->onDelete('restrict');
+            $table->foreign('option_id')->references('id')->on('sub_category_options')->onDelete('restrict');
             $table->timestamps();
         });
     }

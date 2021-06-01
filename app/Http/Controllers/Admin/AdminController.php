@@ -47,7 +47,7 @@ class AdminController extends Controller{
         $DbName             = env('DB_DATABASE');
         $backup_name        = "mybackup.sql";
         $tables             = array("users","admins","ads","admin_permissions","balance_packages","categories",
-            "contact_us","meta_tags","notifications","settings","categories_ads","category_options","category_option_values",
+            "contact_us","meta_tags","notifications","settings","categories_ads","sub_category_options","category_option_values",
             "failed_jobs","favorites","main_ads","markas","marka_types","migrations","mndobs","password_resets","permissions","plans",
             "plan_details","rates","sub_categories",
             "sub_two_categories","sub_three_categories","sub_four_categories","sub_five_categories","type_models",
