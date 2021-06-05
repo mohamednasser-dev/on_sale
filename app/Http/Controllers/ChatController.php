@@ -180,7 +180,7 @@ class ChatController extends Controller
                 }
                 $sub_message = substr($message->message, 0, 50);
                 $link = env('APP_URL') . '/api/chat/get_ad_message/' . $message->ad_product_id . '/en/v1';
-//              $fb_token = 'fWhAQ1jMQ4iivvh3Qrnzlo:APA91bF8qD2dspOk8ASLmhO1Q3-mS7HFzcCwSoevdHNtv1JaL3Ps2-u1H6Uy_ASyBXmgpDq2VD_0rw5frliggpMIWnZNmlo-GNGI6tSf7m4Vd6mTPHKgA9sXUrC9Xqc_TbyjtN-xcU_F';
+//                $fb_token = 'deI6kg_YQ0S1PXNBOh4uPK:APA91bHUJudsUtTu37XKqHn07s7SLAsue0aVKq6XX8-2CRstdSqeIJOG2hWW6fOs-tkQntniC4y4PFWCNIQ-Ny-0Mqrn0O8YpxBKNrEWxw4UgdYOb_zcPHIiFEglVPcyZvENtrmQ-wNa';
                 $result = APIHelpers::send_chat_notification($fb_token, $title, $sub_message, $message->type, $message, $link);
                 //end firebase
                 $response = APIHelpers::createApiResponse(false, 200, 'message sent successfully', 'تم ارسال الرسالة بنجاح', $data, $request->lang);
