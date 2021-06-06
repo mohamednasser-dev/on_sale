@@ -305,6 +305,7 @@ class CategoryController extends Controller
                 $data['sub_category_array'][$n]['selected'] = false;
             }
         }
+        $All_sub_cat = false;
         if (count($data['sub_categories']) > 0) {
             for ($i = 0; $i < count($data['sub_categories']); $i++) {
                 $subThreeCats = SubFourCategory::where('sub_category_id', $data['sub_categories'][$i]['id'])->where('deleted',0)->select('id')->first();
@@ -333,9 +334,58 @@ class CategoryController extends Controller
                     }
                     //End check
                 }
+                if($All_sub_cat == false){
+                    if($data['sub_categories'][$i]['next_level'] == false){
+                        $All_sub_cat = false;
+                    }else{
+                        $All_sub_cat = true;
+                    }
+                }
 
             }
         }
+        if($All_sub_cat == false){
+            if ($request->lang == 'en') {
+                if ($request->sub_category_id != 0) {
+                    if ($request->sub_category_id != 0) {
+                        $data['SubThreeCategory'] = SubTwoCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_en as title', 'sub_category_id')->get();
+                    } else {
+                        $data['SubThreeCategory'] = SubTwoCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_en as title', 'sub_category_id')->get();
+                    }
+                } else {
+                    if ($request->sub_category_id != 0) {
+                        $data['sub_category_array'] = SubThreeCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_en as title', 'sub_category_id')->get();
+                    } else {
+                        $data['sub_category_array'] = SubThreeCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_en as title', 'sub_category_id')->get();
+                    }
+                }
+            } else {
+                if ($request->sub_category_id != 0) {
+                    if ($request->sub_category_id != 0) {
+                        $data['sub_category_array'] = SubThreeCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                    } else {
+                        $data['sub_category_array'] = SubThreeCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                    }
+                } else {
+                    if ($request->sub_category_id != 0) {
+                        $data['sub_category_array'] = SubThreeCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                    } else {
+                        $data['sub_category_array'] = SubThreeCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                    }
+
+                }
+            }
+            for ($n = 0; $n < count($data['sub_category_array']); $n++) {
+                if($n == 0){
+                    $data['sub_category_array'][$n]['selected'] = true;
+                }else{
+                    $data['sub_category_array'][$n]['selected'] = false;
+                }
+            }
+        }
+
+
+
 
         array_unshift($data['sub_categories']);
         $products = Product::where('status', 1)->where('deleted', 0)->where('publish', 'Y')->where('category_id', $request->category_id)->select('id', 'title', 'price', 'main_image as image', 'pin', 'created_at');
