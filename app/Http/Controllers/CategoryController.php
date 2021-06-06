@@ -346,11 +346,12 @@ class CategoryController extends Controller
         }
         if($All_sub_cat == false){
             if ($request->lang == 'en') {
+
                 if ($request->sub_category_id != 0) {
                     if ($request->sub_category_id != 0) {
-                        $data['SubThreeCategory'] = SubTwoCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_en as title', 'sub_category_id')->get();
+                        $data['sub_category_array'] = SubThreeCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_en as title', 'sub_category_id')->get();
                     } else {
-                        $data['SubThreeCategory'] = SubTwoCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_en as title', 'sub_category_id')->get();
+                        $data['sub_category_array'] = SubThreeCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_en as title', 'sub_category_id')->get();
                     }
                 } else {
                     if ($request->sub_category_id != 0) {

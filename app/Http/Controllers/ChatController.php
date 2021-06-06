@@ -173,7 +173,7 @@ class ChatController extends Controller
                 }
                 //begin use firebase to send message
                 $fb_token = $other_user->User->fcm_token;
-                if ($request->lang == 'ar') {
+                if ($قrequest->lang == 'ar') {
                     $title = 'رسالة من تطبيق جلف';
                 } else {
                     $title = 'message  from gulf app';
