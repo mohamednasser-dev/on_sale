@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Conversation extends Model
+class  Conversation extends Model
 {
     protected $fillable = ['last_message_id'];
 

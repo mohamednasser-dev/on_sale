@@ -517,10 +517,87 @@ class CategoryController extends Controller
             }
         }
 
-
+        $All_sub_cat = false ;
         for ($i = 0; $i < count($data['sub_categories']); $i++) {
             $cat_ids[$i] = $data['sub_categories'][$i]['id'];
+            $subThreeCats = SubFiveCategory::where('sub_category_id', $data['sub_categories'][$i]['id'])->where('deleted',0)->select('id')->first();
+            $data['sub_categories'][$i]['next_level'] = false;
+            if (isset($subThreeCats['id'])) {
+                $data['sub_categories'][$i]['next_level'] = true;
+            }
+            if($data['sub_categories'][$i]['next_level'] == true) {
+                // check after this level layers
+                $data['sub_next_categories'] = SubFiveCategory::where('deleted', '0')->where('sub_category_id', $subThreeCats->id)->select('id', 'image', 'title_ar as title')->get()->toArray();
+                if (count($data['sub_next_categories']) > 0) {
+                    for ($i = 0; $i < count($data['sub_next_categories']); $i++) {
+                        $subFiveCats = SubFiveCategory::where('sub_category_id', $data['sub_next_categories'][$i]['id'])->where('deleted', '0')->select('id', 'deleted')->first();
+                        if($subFiveCats == null){
+                            $have_next_level = false;
+                        }else{
+                            $have_next_level = true;
+                        }
+                        if($have_next_level == false){
+                            $data['sub_categories'][$i]['next_level'] = false;
+                        }else{
+                            $data['sub_categories'][$i]['next_level'] = true;
+                            break;
+                        }
+                    }
+                }
+                //End check
+            }
+            if($All_sub_cat == false){
+                if($data['sub_categories'][$i]['next_level'] == false){
+                    $All_sub_cat = false;
+                }else{
+                    $All_sub_cat = true;
+                }
+            }
+
         }
+        if($All_sub_cat == false){
+            if ($request->lang == 'en') {
+
+                if ($request->sub_category_id != 0) {
+                    if ($request->sub_category_id != 0) {
+                        $data['sub_category_array'] = SubThreeCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_en as title', 'sub_category_id')->get();
+                    } else {
+                        $data['sub_category_array'] = SubThreeCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_en as title', 'sub_category_id')->get();
+                    }
+                } else {
+                    if ($request->sub_category_id != 0) {
+                        $data['sub_category_array'] = SubThreeCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_en as title', 'sub_category_id')->get();
+                    } else {
+                        $data['sub_category_array'] = SubThreeCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_en as title', 'sub_category_id')->get();
+                    }
+                }
+            } else {
+                if ($request->sub_category_id != 0) {
+                    if ($request->sub_category_id != 0) {
+                        $data['sub_category_array'] = SubThreeCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                    } else {
+                        $data['sub_category_array'] = SubThreeCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                    }
+                } else {
+                    if ($request->sub_category_id != 0) {
+                        $data['sub_category_array'] = SubThreeCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                    } else {
+                        $data['sub_category_array'] = SubThreeCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                    }
+
+                }
+            }
+            for ($n = 0; $n < count($data['sub_category_array']); $n++) {
+                if($n == 0){
+                    $data['sub_category_array'][$n]['selected'] = true;
+                }else{
+                    $data['sub_category_array'][$n]['selected'] = false;
+                }
+            }
+        }
+
+
+
         // $data['ad_image'] = Categories_ad::select('image','ad_type','content as link')->wherein('cat_id',$cat_ids)->where('type','sub_four_category')->inRandomOrder()->take(1)->get();
 
         for ($n = 0; $n < count($data['sub_category_array']); $n++) {
