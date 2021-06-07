@@ -1,5 +1,24 @@
 @extends('admin.app')
 @section('title' , __('messages.sub_category_fourth'))
+@section('scripts')
+    <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js" type="text/javascript"></script>
+    <script>
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        $("tbody#sortable").sortable({
+            items: "tr",
+            placeholder: "ui-state-hightlight",
+            update: function () {
+                var ids = $('tbody#sortable').sortable("serialize");
+                var url = "{{ route('sub_four_cat.sort') }}";
+                $.post(url, ids + "&_token={{ csrf_token() }}");
+            }
+        });
+    </script>
+@endsection
 @section('content')
     <div id="tableSimple" class="col-lg-12 col-12 layout-spacing">
         <div class="statbox widget box box-shadow">
@@ -28,10 +47,10 @@
                             @if(Auth::user()->delete_data)<th class="text-center" >{{ __('messages.delete') }}</th>@endif
                         </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="sortable">
                         <?php $i = 1; ?>
                         @foreach ($data as $row)
-                            <tr >
+                            <tr id="id_{{ $row->id }}" >
                                 <td class="text-center"><?=$i;?></td>
                                 <td class="text-center"><img src="https://res.cloudinary.com/carsads2021/image/upload/w_100,q_100/v1581928924/{{ $row->image }}"/></td>
                                 <td class="text-center blue-color">{{ app()->getLocale() == 'en' ? $row->title_en : $row->title_ar }}</td>

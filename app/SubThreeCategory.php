@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class SubThreeCategory extends Model
 {
     //
-    protected $fillable = ['title_en', 'title_ar', 'image', 'deleted', 'sub_category_id'];
+    protected $fillable = ['title_en', 'title_ar', 'image', 'deleted', 'sub_category_id','sort'];
 
 
     public function category() {

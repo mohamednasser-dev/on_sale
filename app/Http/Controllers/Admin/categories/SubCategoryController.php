@@ -43,10 +43,27 @@ class SubCategoryController extends AdminController
     public function show($id)
     {
         $cat_id = $id;
-        $data = SubCategory::where('category_id',$id)->where('deleted','0')->get();
+        $data = SubCategory::where('category_id',$id)->where('deleted','0')->orderBy('sort' , 'asc')->get();
         return view('admin.categories.sub_category.index',compact('data','cat_id'));
     }
-
+// sorting
+    public function sort(Request $request) {
+        $post = $request->all();
+        $count = 0;
+        for ($i = 0; $i < count($post['id']); $i ++) :
+            $index = $post['id'][$i];
+            $home_section = SubCategory::findOrFail($index);
+            $count ++;
+            $newPosition = $count;
+            $data['sort'] = $newPosition;
+            if($home_section->update($data)) {
+                echo "success";
+            }else {
+                echo "failed";
+            }
+        endfor;
+        exit('success');
+    }
     public function edit($id) {
         $data = SubCategory::where('id',$id)->first();
         return view('admin.categories.sub_category.edit', compact('data'));

@@ -34,8 +34,9 @@ class ProductController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['ad_owner_info', 'current_ads', 'ended_ads', 'max_min_price', 'filter', 'offer_ads', 'republish_ad', 'areas', 'cities', 'third_step_excute_pay', 'save_third_step_with_money', 'update_ad', 'select_ad_data', 'delete_my_ad', 'save_third_
-        step', 'save_second_step', 'save_first_step', 'getdetails', 'last_seen', 'getoffers', 'getproducts', 'getsearch', 'getFeatureOffers']]);
+        $this->middleware('auth:api', ['except' => ['ad_owner_info', 'current_ads', 'ended_ads', 'max_min_price', 'filter', 'offer_ads', 'republish_ad',
+            'areas', 'cities', 'third_step_excute_pay', 'save_third_step_with_money', 'update_ad', 'select_ad_data', 'delete_my_ad',
+            'save_third_step', 'save_second_step', 'save_first_step', 'getdetails', 'last_seen', 'getoffers', 'getproducts', 'getsearch', 'getFeatureOffers']]);
         //        --------------------------------------------- begin scheduled functions --------------------------------------------------------
 
         $expired = Product::where('status', 1)->whereDate('expiry_date', '<', Carbon::now())->get();
@@ -618,7 +619,7 @@ class ProductController extends Controller
 
         $validator = Validator::make($input, [
             'category_id' => 'required',
-            'sub_category_id' => 'required',
+            'sub_category_id' => '',
             'title' => 'required',
             'main_image' => 'required',
             'images' => '',
@@ -1462,7 +1463,7 @@ class ProductController extends Controller
         }
         $validator = Validator::make($input, [
             'category_id' => 'required',
-            'sub_category_id' => 'required',
+            'sub_category_id' => '',
             'sub_category_two_id' => '',
             'sub_category_three_id' => '',
             'sub_category_four_id' => '',

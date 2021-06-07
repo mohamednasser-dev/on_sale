@@ -40,8 +40,27 @@ class SubFiveCategoryController extends AdminController
     public function show($id)
     {
         $cat_id = $id;
-        $data = SubFiveCategory::where('sub_category_id',$id)->where('deleted','0')->get();
+        $data = SubFiveCategory::where('sub_category_id',$id)->where('deleted','0')->orderBy('sort' , 'asc')->get();
         return view('admin.categories.sub_category.sub_two_category.sub_three_category.sub_four_category.sub_five_category.index',compact('data','cat_id'));
+    }
+
+    // sorting
+    public function sort(Request $request) {
+        $post = $request->all();
+        $count = 0;
+        for ($i = 0; $i < count($post['id']); $i ++) :
+            $index = $post['id'][$i];
+            $home_section = SubFiveCategory::findOrFail($index);
+            $count ++;
+            $newPosition = $count;
+            $data['sort'] = $newPosition;
+            if($home_section->update($data)) {
+                echo "success";
+            }else {
+                echo "failed";
+            }
+        endfor;
+        exit('success');
     }
 
     public function edit($id) {

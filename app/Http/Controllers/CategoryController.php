@@ -29,12 +29,12 @@ class CategoryController extends Controller
     public function getcategories(Request $request)
     {
         if ($request->lang == 'en') {
-            $categories = Category::where('deleted', 0)->select('id', 'title_en as title', 'image')->get();
+            $categories = Category::where('deleted', 0)->select('id', 'title_en as title', 'image')->orderBy('sort' , 'asc')->get();
             for ($i = 0; $i < count($categories); $i++) {
                 $categories[$i]['products_count'] = Product::where('category_id', $categories[$i]['id'])->where('status', 1)->where('publish', 'Y')->where('deleted', 0)->count();
             }
         } else {
-            $categories = Category::where('deleted', 0)->select('id', 'title_ar as title', 'image')->get();
+            $categories = Category::where('deleted', 0)->select('id', 'title_ar as title', 'image')->orderBy('sort' , 'asc')->get();
             for ($i = 0; $i < count($categories); $i++) {
                 $categories[$i]['products_count'] = Product::where('category_id', $categories[$i]['id'])->where('status', 1)->where('publish', 'Y')->where('deleted', 0)->count();
             }
@@ -48,10 +48,12 @@ class CategoryController extends Controller
     public function getAdSubCategories(Request $request)
     {
         if ($request->lang == 'en') {
-            $data['sub_categories'] = SubCategory::where('deleted', 0)->where('category_id', $request->category_id)->select('id', 'image', 'title_en as title')->get()->toArray();
+            $data['sub_categories'] = SubCategory::where('deleted', 0)->where('category_id', $request->category_id)->select('id', 'image', 'title_en as title')->orderBy('sort' , 'asc')->get()->toArray();
+            $data['sub_category_array'] = Category::select('id', 'title_en as title')->orderBy('sort' , 'asc')->get();
             $data['category'] = Category::select('id', 'title_en as title')->find($request->category_id);
         } else {
-            $data['sub_categories'] = SubCategory::where('deleted', 0)->where('category_id', $request->category_id)->select('id', 'image', 'title_ar as title')->get()->toArray();
+            $data['sub_categories'] = SubCategory::where('deleted', 0)->where('category_id', $request->category_id)->select('id', 'image', 'title_ar as title')->orderBy('sort' , 'asc')->get()->toArray();
+            $data['sub_category_array'] = Category::select('id', 'title_ar as title')->orderBy('sort' , 'asc')->get();
             $data['category'] = Category::select('id', 'title_ar as title')->find($request->category_id);
         }
         for ($i = 0; $i < count($data['sub_categories']); $i++) {
@@ -64,7 +66,7 @@ class CategoryController extends Controller
 
             if($data['sub_categories'][$i]['next_level'] == true) {
                 // check after this level layers
-                $data['sub_next_categories'] = SubTwoCategory::where('deleted', '0')->where('sub_category_id', $subTwoCats->id)->select('id', 'image', 'title_ar as title')->get()->toArray();
+                $data['sub_next_categories'] = SubTwoCategory::where('deleted', '0')->where('sub_category_id', $subTwoCats->id)->select('id', 'image', 'title_ar as title')->orderBy('sort' , 'asc')->get()->toArray();
                 if (count($data['sub_next_categories']) > 0) {
                     for ($i = 0; $i < count($data['sub_next_categories']); $i++) {
                         $subFiveCats = SubThreeCategory::where('sub_category_id', $data['sub_next_categories'][$i]['id'])->where('deleted', '0')->select('id', 'deleted')->first();
@@ -86,8 +88,41 @@ class CategoryController extends Controller
         }
         array_unshift($data['sub_categories']);
 
-        // $data['ad_image'] = Categories_ad::select('image','ad_type','content as link')->wherein('cat_id',$cat_ids)->where('type','sub_category')->inRandomOrder()->take(1)->get();
+        $lang = $request->lang;
+        $products = Product::where('status', 1)->where('publish', 'Y')->where('deleted', 0)->where('category_id', $request->category_id)->select('id', 'title', 'price', 'main_image as image', 'created_at', 'pin')->orderBy('pin', 'DESC')->orderBy('created_at', 'desc')->simplePaginate(12);
+        for ($i = 0; $i < count($products); $i++) {
+            if ($products[$i]['price'] == 0) {
+                if ($lang == 'ar') {
+                    $products[$i]['price'] = 'اسأل البائع';
+                } else {
+                    $products[$i]['price'] = 'Ask the seller';
+                }
+            }
+            $views = Product_view::where('product_id', $products[$i]['id'])->get()->count();
+            $products[$i]['views'] = $views;
+            $user = auth()->user();
+            if ($user) {
+                $favorite = Favorite::where('user_id', $user->id)->where('product_id', $products[$i]['id'])->first();
+                if ($favorite) {
+                    $products[$i]['favorite'] = true;
+                } else {
+                    $products[$i]['favorite'] = false;
+                }
 
+                $conversation = Participant::where('ad_product_id',$products[$i]['id'])->where('user_id', $user->id)->first();
+                if($conversation == null){
+                    $products[$i]['conversation_id'] = 0 ;
+                }else{
+                    $products[$i]['conversation_id'] = $conversation->conversation_id ;
+                }
+            } else {
+                $products[$i]['favorite'] = false;
+                $products[$i]['conversation_id'] =  0;
+            }
+            $products[$i]['time'] =APIHelpers::get_month_day($products[$i]['created_at'],$lang);
+        }
+
+        $data['products'] = $products;
         $response = APIHelpers::createApiResponse(false, 200, '', '', $data, $request->lang);
         return response()->json($response, 200);
     }
@@ -104,36 +139,36 @@ class CategoryController extends Controller
         }
         if ($request->lang == 'en') {
             if ($request->sub_category_id != 0) {
-                $data['sub_categories'] = SubTwoCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_id)->select('id', 'image', 'title_en as title')->get()->toArray();
+                $data['sub_categories'] = SubTwoCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_id)->select('id', 'image', 'title_en as title')->orderBy('sort' , 'asc')->get()->toArray();
                 $data['sub_category_level1'] = SubCategory::where('id', $request->sub_category_id)->select('id', 'title_en as title', 'category_id')->first();
-                $data['sub_category_array'] = SubCategory::where('category_id', $data['sub_category_level1']['category_id'])->select('id', 'title_en as title', 'category_id')->get()->makeHidden('category_id');
+                $data['sub_category_array'] = SubCategory::where('category_id', $data['sub_category_level1']['category_id'])->select('id', 'title_en as title', 'category_id')->orderBy('sort' , 'asc')->get()->makeHidden('category_id');
                 $data['category'] = Category::where('id', $data['sub_category_level1']['category_id'])->select('id', 'title_en as title')->first();
             } else {
                 $subCategories = SubCategory::where('category_id', $request->category_id)->pluck('id')->toArray();
-                $data['sub_categories'] = SubTwoCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategories)->select('id', 'image', 'title_en as title')->get()->toArray();
+                $data['sub_categories'] = SubTwoCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategories)->select('id', 'image', 'title_en as title')->orderBy('sort' , 'asc')->get()->toArray();
                 $data['sub_category_level1'] = (object)[
                     "id" => 0,
                     "title" => "All",
                     "category_id" => $request->category_id
                 ];
-                $data['sub_category_array'] = SubCategory::where('category_id', $request->category_id)->select('id', 'title_en as title', 'category_id')->get()->makeHidden('category_id');
+                $data['sub_category_array'] = SubCategory::where('category_id', $request->category_id)->select('id', 'title_en as title', 'category_id')->orderBy('sort' , 'asc')->get()->makeHidden('category_id');
                 $data['category'] = Category::where('id', $request->category_id)->select('id', 'title_en as title')->first();
             }
         } else {
             if ($request->sub_category_id != 0) {
-                $data['sub_categories'] = SubTwoCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_id)->select('id', 'image', 'title_ar as title')->get()->toArray();
+                $data['sub_categories'] = SubTwoCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_id)->select('id', 'image', 'title_ar as title')->orderBy('sort' , 'asc')->get()->toArray();
                 $data['sub_category_level1'] = SubCategory::where('id', $request->sub_category_id)->select('id', 'title_ar as title', 'category_id')->first();
-                $data['sub_category_array'] = SubCategory::where('category_id', $data['sub_category_level1']['category_id'])->select('id', 'title_ar as title', 'category_id')->get()->makeHidden('category_id');
+                $data['sub_category_array'] = SubCategory::where('category_id', $data['sub_category_level1']['category_id'])->select('id', 'title_ar as title', 'category_id')->orderBy('sort' , 'asc')->get()->makeHidden('category_id');
                 $data['category'] = Category::where('id', $data['sub_category_level1']['category_id'])->select('id', 'title_ar as title')->first();
             } else {
                 $subCategories = SubCategory::where('category_id', $request->category_id)->pluck('id')->toArray();
-                $data['sub_categories'] = SubTwoCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategories)->select('id', 'image', 'title_ar as title')->get()->toArray();
+                $data['sub_categories'] = SubTwoCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategories)->select('id', 'image', 'title_ar as title')->orderBy('sort' , 'asc')->get()->toArray();
                 $data['sub_category_level1'] = (object)[
                     "id" => 0,
                     "title" => "All",
                     "category_id" => $request->category_id
                 ];
-                $data['sub_category_array'] = SubCategory::where('category_id', $request->category_id)->select('id', 'title_ar as title', 'category_id')->get()->makeHidden('category_id');
+                $data['sub_category_array'] = SubCategory::where('category_id', $request->category_id)->select('id', 'title_ar as title', 'category_id')->orderBy('sort' , 'asc')->get()->makeHidden('category_id');
                 $data['category'] = Category::where('id', $request->category_id)->select('id', 'title_ar as title')->first();
             }
         }
@@ -152,14 +187,14 @@ class CategoryController extends Controller
         if (count($data['sub_categories']) > 0) {
             for ($i = 0; $i < count($data['sub_categories']); $i++) {
                 $subThreeCats = SubThreeCategory::where('sub_category_id', $data['sub_categories'][$i]['id'])->where('deleted',0)->select('id')->first();
-                $data['sub_categories'][$i]['next_level'] = false;
-
-                if (isset($subThreeCats['id'])) {
+                if($subThreeCats != null){
                     $data['sub_categories'][$i]['next_level'] = true;
+                }else{
+                    $data['sub_categories'][$i]['next_level'] = false;
                 }
                 if($data['sub_categories'][$i]['next_level'] == true) {
                     // check after this level layers
-                    $data['sub_next_categories'] = SubThreeCategory::where('deleted', '0')->where('sub_category_id', $subThreeCats->id)->select('id', 'image', 'title_ar as title')->get()->toArray();
+                    $data['sub_next_categories'] = SubThreeCategory::where('deleted', '0')->where('sub_category_id', $subThreeCats->id)->select('id', 'image', 'title_ar as title')->orderBy('sort' , 'asc')->get()->toArray();
                     if (count($data['sub_next_categories']) > 0) {
                         for ($i = 0; $i < count($data['sub_next_categories']); $i++) {
                             $subFiveCats = SubFourCategory::where('sub_category_id', $data['sub_next_categories'][$i]['id'])->where('deleted', '0')->select('id', 'deleted')->first();
@@ -240,12 +275,12 @@ class CategoryController extends Controller
         $subCategoriesTwo = SubTwoCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategories)->pluck('id')->toArray();
         if ($request->lang == 'en') {
             if ($request->sub_category_id != 0) {
-                $data['sub_categories'] = SubThreeCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_id)->select('id', 'image', 'title_en as title')->get()->toArray();
+                $data['sub_categories'] = SubThreeCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_id)->select('id', 'image', 'title_en as title')->orderBy('sort' , 'asc')->get()->toArray();
                 $data['sub_category_level2'] = SubTwoCategory::where('id', $request->sub_category_id)->select('id', 'title_en as title', 'sub_category_id')->first();
                 if ($request->sub_category_level1_id != 0) {
-                    $data['sub_category_array'] = SubTwoCategory::where('sub_category_id', $request->sub_category_level1_id)->select('id', 'title_en as title', 'sub_category_id')->get();
+                    $data['sub_category_array'] = SubTwoCategory::where('sub_category_id', $request->sub_category_level1_id)->select('id', 'title_en as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                 } else {
-                    $data['sub_category_array'] = SubTwoCategory::whereIn('sub_category_id', $subCategories)->select('id', 'title_en as title', 'sub_category_id')->get();
+                    $data['sub_category_array'] = SubTwoCategory::whereIn('sub_category_id', $subCategories)->select('id', 'title_en as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                 }
 
                 $data['category'] = Category::where('id', $request->category_id)->select('id', 'title_en as title')->first();
@@ -257,22 +292,22 @@ class CategoryController extends Controller
                     "sub_category_id" => $request->sub_category_level1_id
                 ];
                 if ($request->sub_category_level1_id != 0) {
-                    $data['sub_category_array'] = SubTwoCategory::where('sub_category_id', $request->sub_category_level1_id)->select('id', 'title_en as title', 'sub_category_id')->get();
+                    $data['sub_category_array'] = SubTwoCategory::where('sub_category_id', $request->sub_category_level1_id)->select('id', 'title_en as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                 } else {
-                    $data['sub_category_array'] = SubTwoCategory::whereIn('sub_category_id', $subCategories)->select('id', 'title_en as title', 'sub_category_id')->get();
+                    $data['sub_category_array'] = SubTwoCategory::whereIn('sub_category_id', $subCategories)->select('id', 'title_en as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                 }
-                $data['sub_categories'] = SubThreeCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'image', 'title_en as title')->get()->toArray();
+                $data['sub_categories'] = SubThreeCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'image', 'title_en as title')->orderBy('sort' , 'asc')->get()->toArray();
 
                 $data['category'] = Category::where('id', $request->category_id)->select('id', 'title_en as title')->first();
             }
         } else {
             if ($request->sub_category_id != 0) {
-                $data['sub_categories'] = SubThreeCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_id)->select('id', 'image', 'title_ar as title')->get()->toArray();
+                $data['sub_categories'] = SubThreeCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_id)->select('id', 'image', 'title_ar as title')->orderBy('sort' , 'asc')->get()->toArray();
                 $data['sub_category_level2'] = SubTwoCategory::where('id', $request->sub_category_id)->select('id', 'title_ar as title', 'sub_category_id')->first();
                 if ($request->sub_category_level1_id != 0) {
-                    $data['sub_category_array'] = SubTwoCategory::where('sub_category_id', $request->sub_category_level1_id)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                    $data['sub_category_array'] = SubTwoCategory::where('sub_category_id', $request->sub_category_level1_id)->select('id', 'title_ar as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                 } else {
-                    $data['sub_category_array'] = SubTwoCategory::whereIn('sub_category_id', $subCategories)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                    $data['sub_category_array'] = SubTwoCategory::whereIn('sub_category_id', $subCategories)->select('id', 'title_ar as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                 }
 
                 $data['category'] = Category::where('id', $request->category_id)->select('id', 'title_ar as title')->first();
@@ -284,11 +319,11 @@ class CategoryController extends Controller
                     "sub_category_id" => $request->sub_category_level1_id
                 ];
                 if ($request->sub_category_level1_id != 0) {
-                    $data['sub_category_array'] = SubTwoCategory::where('sub_category_id', $request->sub_category_level1_id)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                    $data['sub_category_array'] = SubTwoCategory::where('sub_category_id', $request->sub_category_level1_id)->select('id', 'title_ar as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                 } else {
-                    $data['sub_category_array'] = SubTwoCategory::whereIn('sub_category_id', $subCategories)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                    $data['sub_category_array'] = SubTwoCategory::whereIn('sub_category_id', $subCategories)->select('id', 'title_ar as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                 }
-                $data['sub_categories'] = SubThreeCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'image', 'title_ar as title')->get()->toArray();
+                $data['sub_categories'] = SubThreeCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'image', 'title_ar as title')->orderBy('sort' , 'asc')->get()->toArray();
 
                 $data['category'] = Category::where('id', $request->category_id)->select('id', 'title_ar as title')->first();
             }
@@ -315,7 +350,7 @@ class CategoryController extends Controller
                 }
                 if($data['sub_categories'][$i]['next_level'] == true) {
                     // check after this level layers
-                    $data['sub_next_categories'] = SubFourCategory::where('deleted', '0')->where('sub_category_id', $subThreeCats->id)->select('id', 'image', 'title_ar as title')->get()->toArray();
+                    $data['sub_next_categories'] = SubFourCategory::where('deleted', '0')->where('sub_category_id', $subThreeCats->id)->select('id', 'image', 'title_ar as title')->orderBy('sort' , 'asc')->get()->toArray();
                     if (count($data['sub_next_categories']) > 0) {
                         for ($i = 0; $i < count($data['sub_next_categories']); $i++) {
                             $subFiveCats = SubFiveCategory::where('sub_category_id', $data['sub_next_categories'][$i]['id'])->where('deleted', '0')->select('id', 'deleted')->first();
@@ -349,29 +384,29 @@ class CategoryController extends Controller
 
                 if ($request->sub_category_id != 0) {
                     if ($request->sub_category_id != 0) {
-                        $data['sub_category_array'] = SubThreeCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_en as title', 'sub_category_id')->get();
+                        $data['sub_category_array'] = SubThreeCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_en as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                     } else {
-                        $data['sub_category_array'] = SubThreeCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_en as title', 'sub_category_id')->get();
+                        $data['sub_category_array'] = SubThreeCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_en as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                     }
                 } else {
                     if ($request->sub_category_id != 0) {
-                        $data['sub_category_array'] = SubThreeCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_en as title', 'sub_category_id')->get();
+                        $data['sub_category_array'] = SubThreeCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_en as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                     } else {
-                        $data['sub_category_array'] = SubThreeCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_en as title', 'sub_category_id')->get();
+                        $data['sub_category_array'] = SubThreeCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_en as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                     }
                 }
             } else {
                 if ($request->sub_category_id != 0) {
                     if ($request->sub_category_id != 0) {
-                        $data['sub_category_array'] = SubThreeCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                        $data['sub_category_array'] = SubThreeCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_ar as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                     } else {
-                        $data['sub_category_array'] = SubThreeCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                        $data['sub_category_array'] = SubThreeCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_ar as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                     }
                 } else {
                     if ($request->sub_category_id != 0) {
-                        $data['sub_category_array'] = SubThreeCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                        $data['sub_category_array'] = SubThreeCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_ar as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                     } else {
-                        $data['sub_category_array'] = SubThreeCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                        $data['sub_category_array'] = SubThreeCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_ar as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                     }
 
                 }
@@ -465,52 +500,52 @@ class CategoryController extends Controller
 
         if ($request->lang == 'en') {
             if ($request->sub_category_id != 0) {
-                $data['sub_categories'] = SubFourCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_id)->select('id', 'image', 'title_en as title')->get()->toArray();
+                $data['sub_categories'] = SubFourCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_id)->select('id', 'image', 'title_en as title')->orderBy('sort' , 'asc')->get()->toArray();
                 $data['sub_category_level3'] = SubThreeCategory::where('id', $request->sub_category_id)->select('id', 'title_en as title', 'sub_category_id')->first();
                 if ($request->sub_category_level2_id == 0) {
-                    $data['sub_category_array'] = SubThreeCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_en as title', 'sub_category_id')->get();
+                    $data['sub_category_array'] = SubThreeCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_en as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                 } else {
-                    $data['sub_category_array'] = SubThreeCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_level2_id)->select('id', 'title_en as title', 'sub_category_id')->get();
+                    $data['sub_category_array'] = SubThreeCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_level2_id)->select('id', 'title_en as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                 }
 
                 $data['category'] = Category::where('id', $request->category_id)->select('id', 'title_en as title')->first();
             } else {
-                $data['sub_categories'] = SubFourCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesThree)->select('id', 'image', 'title_en as title')->get()->toArray();
+                $data['sub_categories'] = SubFourCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesThree)->select('id', 'image', 'title_en as title')->orderBy('sort' , 'asc')->get()->toArray();
                 $data['sub_category_level3'] = (object)[
                     "id" => 0,
                     "title" => "All",
                     "sub_category_id" => $request->sub_category_level2_id
                 ];
                 if ($request->sub_category_level2_id == 0) {
-                    $data['sub_category_array'] = SubThreeCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_en as title', 'sub_category_id')->get();
+                    $data['sub_category_array'] = SubThreeCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_en as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                 } else {
-                    $data['sub_category_array'] = SubThreeCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_level2_id)->select('id', 'title_en as title', 'sub_category_id')->get();
+                    $data['sub_category_array'] = SubThreeCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_level2_id)->select('id', 'title_en as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                 }
 
                 $data['category'] = Category::where('id', $request->category_id)->select('id', 'title_en as title')->first();
             }
         } else {
             if ($request->sub_category_id != 0) {
-                $data['sub_categories'] = SubFourCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_id)->select('id', 'image', 'title_ar as title')->get()->toArray();
+                $data['sub_categories'] = SubFourCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_id)->select('id', 'image', 'title_ar as title')->orderBy('sort' , 'asc')->get()->toArray();
                 $data['sub_category_level3'] = SubThreeCategory::where('id', $request->sub_category_id)->select('id', 'title_ar as title', 'sub_category_id')->first();
                 if ($request->sub_category_level2_id == 0) {
-                    $data['sub_category_array'] = SubThreeCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                    $data['sub_category_array'] = SubThreeCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_ar as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                 } else {
-                    $data['sub_category_array'] = SubThreeCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_level2_id)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                    $data['sub_category_array'] = SubThreeCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_level2_id)->select('id', 'title_ar as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                 }
 
                 $data['category'] = Category::where('id', $request->category_id)->select('id', 'title_ar as title')->first();
             } else {
-                $data['sub_categories'] = SubFourCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesThree)->select('id', 'image', 'title_ar as title')->get()->toArray();
+                $data['sub_categories'] = SubFourCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesThree)->select('id', 'image', 'title_ar as title')->orderBy('sort' , 'asc')->get()->toArray();
                 $data['sub_category_level3'] = (object)[
                     "id" => 0,
                     "title" => "All",
                     "sub_category_id" => $request->sub_category_level2_id
                 ];
                 if ($request->sub_category_level2_id == 0) {
-                    $data['sub_category_array'] = SubThreeCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                    $data['sub_category_array'] = SubThreeCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_ar as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                 } else {
-                    $data['sub_category_array'] = SubThreeCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_level2_id)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                    $data['sub_category_array'] = SubThreeCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_level2_id)->select('id', 'title_ar as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                 }
 
                 $data['category'] = Category::where('id', $request->category_id)->select('id', 'title_ar as title')->first();
@@ -527,7 +562,7 @@ class CategoryController extends Controller
             }
             if($data['sub_categories'][$i]['next_level'] == true) {
                 // check after this level layers
-                $data['sub_next_categories'] = SubFiveCategory::where('deleted', '0')->where('sub_category_id', $subThreeCats->id)->select('id', 'image', 'title_ar as title')->get()->toArray();
+                $data['sub_next_categories'] = SubFiveCategory::where('deleted', '0')->where('sub_category_id', $subThreeCats->id)->select('id', 'image', 'title_ar as title')->orderBy('sort' , 'asc')->get()->toArray();
                 if (count($data['sub_next_categories']) > 0) {
                     for ($i = 0; $i < count($data['sub_next_categories']); $i++) {
                         $subFiveCats = SubFiveCategory::where('sub_category_id', $data['sub_next_categories'][$i]['id'])->where('deleted', '0')->select('id', 'deleted')->first();
@@ -560,29 +595,29 @@ class CategoryController extends Controller
 
                 if ($request->sub_category_id != 0) {
                     if ($request->sub_category_id != 0) {
-                        $data['sub_category_array'] = SubThreeCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_en as title', 'sub_category_id')->get();
+                        $data['sub_category_array'] = SubThreeCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_en as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                     } else {
-                        $data['sub_category_array'] = SubThreeCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_en as title', 'sub_category_id')->get();
+                        $data['sub_category_array'] = SubThreeCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_en as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                     }
                 } else {
                     if ($request->sub_category_id != 0) {
-                        $data['sub_category_array'] = SubThreeCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_en as title', 'sub_category_id')->get();
+                        $data['sub_category_array'] = SubThreeCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_en as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                     } else {
-                        $data['sub_category_array'] = SubThreeCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_en as title', 'sub_category_id')->get();
+                        $data['sub_category_array'] = SubThreeCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_en as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                     }
                 }
             } else {
                 if ($request->sub_category_id != 0) {
                     if ($request->sub_category_id != 0) {
-                        $data['sub_category_array'] = SubThreeCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                        $data['sub_category_array'] = SubThreeCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_ar as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                     } else {
-                        $data['sub_category_array'] = SubThreeCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                        $data['sub_category_array'] = SubThreeCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_ar as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                     }
                 } else {
                     if ($request->sub_category_id != 0) {
-                        $data['sub_category_array'] = SubThreeCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                        $data['sub_category_array'] = SubThreeCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_ar as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                     } else {
-                        $data['sub_category_array'] = SubThreeCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                        $data['sub_category_array'] = SubThreeCategory::whereIn('sub_category_id', $subCategoriesTwo)->select('id', 'title_ar as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                     }
 
                 }
@@ -690,49 +725,49 @@ class CategoryController extends Controller
         }
         if ($request->lang == 'en') {
             if ($request->sub_category_id != 0) {
-                $data['sub_categories'] = SubFiveCategory::where('deleted', '0')->where('sub_category_id', $request->sub_category_id)->select('id', 'image', 'title_en as title')->get()->toArray();
+                $data['sub_categories'] = SubFiveCategory::where('deleted', '0')->where('sub_category_id', $request->sub_category_id)->select('id', 'image', 'title_en as title')->orderBy('sort' , 'asc')->get()->toArray();
                 $data['sub_category_level4'] = SubFourCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_id)->select('id', 'image', 'title_en as title')->first();
                 if ($request->sub_category_level3_id == 0) {
-                    $data['sub_category_array'] = SubFourCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesThree)->select('id', 'title_en as title', 'sub_category_id')->get();
+                    $data['sub_category_array'] = SubFourCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesThree)->select('id', 'title_en as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                 } else {
-                    $data['sub_category_array'] = SubFourCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_level3_id)->select('id', 'title_en as title', 'sub_category_id')->get();
+                    $data['sub_category_array'] = SubFourCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_level3_id)->select('id', 'title_en as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                 }
                 $data['category'] = Category::where('id', $request->category_id)->select('id', 'title_en as title')->first();
             } else {
-                $data['sub_categories'] = SubFiveCategory::where('deleted', '0')->where('sub_category_id', $subCategoriesFour)->select('id', 'image', 'title_en as title')->get()->toArray();
+                $data['sub_categories'] = SubFiveCategory::where('deleted', '0')->where('sub_category_id', $subCategoriesFour)->select('id', 'image', 'title_en as title')->orderBy('sort' , 'asc')->get()->toArray();
                 $data['sub_category_level3'] = (object)[
                     "id" => 0,
                     "title" => "All",
                     "sub_category_id" => $request->sub_category_level2_id
                 ];
                 if ($request->sub_category_level3_id == 0) {
-                    $data['sub_category_array'] = SubFourCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesThree)->select('id', 'title_en as title', 'sub_category_id')->get();
+                    $data['sub_category_array'] = SubFourCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesThree)->select('id', 'title_en as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                 } else {
-                    $data['sub_category_array'] = SubFourCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_level3_id)->select('id', 'title_en as title', 'sub_category_id')->get();
+                    $data['sub_category_array'] = SubFourCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_level3_id)->select('id', 'title_en as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                 }
                 $data['category'] = Category::where('id', $request->category_id)->select('id', 'title_en as title')->first();
             }
         } else {
             if ($request->sub_category_id != 0) {
-                $data['sub_categories'] = SubFiveCategory::where('deleted', '0')->where('sub_category_id', $request->sub_category_id)->select('id', 'image', 'title_ar as title')->get()->toArray();
+                $data['sub_categories'] = SubFiveCategory::where('deleted', '0')->where('sub_category_id', $request->sub_category_id)->select('id', 'image', 'title_ar as title')->orderBy('sort' , 'asc')->get()->toArray();
                 $data['sub_category_level4'] = SubFourCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_id)->select('id', 'image', 'title_ar as title')->first();
                 if ($request->sub_category_level3_id == 0) {
-                    $data['sub_category_array'] = SubFourCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesThree)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                    $data['sub_category_array'] = SubFourCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesThree)->select('id', 'title_ar as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                 } else {
-                    $data['sub_category_array'] = SubFourCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_level3_id)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                    $data['sub_category_array'] = SubFourCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_level3_id)->select('id', 'title_ar as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                 }
                 $data['category'] = Category::where('id', $request->category_id)->select('id', 'title_ar as title')->first();
             } else {
-                $data['sub_categories'] = SubFiveCategory::where('deleted', '0')->where('sub_category_id', $subCategoriesFour)->select('id', 'image', 'title_ar as title')->get()->toArray();
+                $data['sub_categories'] = SubFiveCategory::where('deleted', '0')->where('sub_category_id', $subCategoriesFour)->select('id', 'image', 'title_ar as title')->orderBy('sort' , 'asc')->get()->toArray();
                 $data['sub_category_level3'] = (object)[
                     "id" => 0,
                     "title" => "All",
                     "sub_category_id" => $request->sub_category_level2_id
                 ];
                 if ($request->sub_category_level3_id == 0) {
-                    $data['sub_category_array'] = SubFourCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesThree)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                    $data['sub_category_array'] = SubFourCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesThree)->select('id', 'title_ar as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                 } else {
-                    $data['sub_category_array'] = SubFourCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_level3_id)->select('id', 'title_ar as title', 'sub_category_id')->get();
+                    $data['sub_category_array'] = SubFourCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_level3_id)->select('id', 'title_ar as title', 'sub_category_id')->orderBy('sort' , 'asc')->get();
                 }
                 $data['category'] = Category::where('id', $request->category_id)->select('id', 'title_ar as title')->first();
             }
@@ -840,25 +875,25 @@ class CategoryController extends Controller
         }
         if ($request->lang == 'en') {
             if ($request->sub_category_level4_id != 0) {
-                $data['sub_categories'] = SubFiveCategory::where('deleted', '0')->where('sub_category_id', $request->sub_category_level4_id)->select('id', 'image', 'title_en as title')->get()->toArray();
+                $data['sub_categories'] = SubFiveCategory::where('deleted', '0')->where('sub_category_id', $request->sub_category_level4_id)->select('id', 'image', 'title_en as title')->orderBy('sort' , 'asc')->get()->toArray();
             } else {
-                $data['sub_categories'] = SubFiveCategory::where('deleted', '0')->whereIn('sub_category_id', $subCategoriesFour)->select('id', 'image', 'title_en as title')->get()->toArray();
+                $data['sub_categories'] = SubFiveCategory::where('deleted', '0')->whereIn('sub_category_id', $subCategoriesFour)->select('id', 'image', 'title_en as title')->orderBy('sort' , 'asc')->get()->toArray();
             }
             if ($request->sub_category_level3_id != 0) {
-                $data['sub_category_array'] = SubFourCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_level3_id)->select('id', 'image', 'title_en as title')->get()->toArray();
+                $data['sub_category_array'] = SubFourCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_level3_id)->select('id', 'image', 'title_en as title')->orderBy('sort' , 'asc')->get()->toArray();
             } else {
-                $data['sub_category_array'] = SubFourCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesThree)->select('id', 'image', 'title_en as title')->get()->toArray();
+                $data['sub_category_array'] = SubFourCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesThree)->select('id', 'image', 'title_en as title')->orderBy('sort' , 'asc')->get()->toArray();
             }
         } else {
             if ($request->sub_category_level4_id != 0) {
-                $data['sub_categories'] = SubFiveCategory::where('deleted', '0')->where('sub_category_id', $request->sub_category_level4_id)->select('id', 'image', 'title_ar as title')->get()->toArray();
+                $data['sub_categories'] = SubFiveCategory::where('deleted', '0')->where('sub_category_id', $request->sub_category_level4_id)->select('id', 'image', 'title_ar as title')->orderBy('sort' , 'asc')->get()->toArray();
             } else {
-                $data['sub_categories'] = SubFiveCategory::where('deleted', '0')->whereIn('sub_category_id', $subCategoriesFour)->select('id', 'image', 'title_ar as title')->get()->toArray();
+                $data['sub_categories'] = SubFiveCategory::where('deleted', '0')->whereIn('sub_category_id', $subCategoriesFour)->select('id', 'image', 'title_ar as title')->orderBy('sort' , 'asc')->get()->toArray();
             }
             if ($request->sub_category_level3_id != 0) {
-                $data['sub_category_array'] = SubFourCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_level3_id)->select('id', 'image', 'title_ar as title')->get()->toArray();
+                $data['sub_category_array'] = SubFourCategory::where('deleted', 0)->where('sub_category_id', $request->sub_category_level3_id)->select('id', 'image', 'title_ar as title')->orderBy('sort' , 'asc')->get()->toArray();
             } else {
-                $data['sub_category_array'] = SubFourCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesThree)->select('id', 'image', 'title_ar as title')->get()->toArray();
+                $data['sub_category_array'] = SubFourCategory::where('deleted', 0)->whereIn('sub_category_id', $subCategoriesThree)->select('id', 'image', 'title_ar as title')->orderBy('sort' , 'asc')->get()->toArray();
             }
         }
         $products = Product::where('status', 1)->where('publish', 'Y')->where('deleted', 0);
@@ -915,9 +950,9 @@ class CategoryController extends Controller
     public function show_first_cat(Request $request)
     {
         if ($request->lang == 'en') {
-            $data['categories'] = Category::where('deleted', 0)->select('id', 'title_en as title', 'image')->get();
+            $data['categories'] = Category::where('deleted', 0)->select('id', 'title_en as title', 'image')->orderBy('sort' , 'asc')->get();
         } else {
-            $data['categories'] = Category::where('deleted', 0)->select('id', 'title_ar as title', 'image')->get();
+            $data['categories'] = Category::where('deleted', 0)->select('id', 'title_ar as title', 'image')->orderBy('sort' , 'asc')->get();
         }
         if (count($data['categories']) > 0) {
             for ($i = 0; $i < count($data['categories']); $i++) {
@@ -935,9 +970,9 @@ class CategoryController extends Controller
     public function show_second_cat(Request $request, $cat_id)
     {
         if ($request->lang == 'en') {
-            $data['categories'] = SubCategory::where('category_id', $cat_id)->where('deleted', 0)->select('id', 'title_en as title', 'image')->get();
+            $data['categories'] = SubCategory::where('category_id', $cat_id)->where('deleted', 0)->select('id', 'title_en as title', 'image')->orderBy('sort' , 'asc')->get();
         } else {
-            $data['categories'] = SubCategory::where('category_id', $cat_id)->where('deleted', 0)->select('id', 'title_ar as title', 'image')->get();
+            $data['categories'] = SubCategory::where('category_id', $cat_id)->where('deleted', 0)->select('id', 'title_ar as title', 'image')->orderBy('sort' , 'asc')->get();
         }
         if (count($data['categories']) > 0) {
             for ($i = 0; $i < count($data['categories']); $i++) {
@@ -955,9 +990,9 @@ class CategoryController extends Controller
     public function show_third_cat(Request $request, $sub_cat_id)
     {
         if ($request->lang == 'en') {
-            $data['categories'] = SubTwoCategory::where('sub_category_id', $sub_cat_id)->where('deleted', 0)->select('id', 'title_en as title', 'image')->get();
+            $data['categories'] = SubTwoCategory::where('sub_category_id', $sub_cat_id)->where('deleted', 0)->select('id', 'title_en as title', 'image')->orderBy('sort' , 'asc')->get();
         } else {
-            $data['categories'] = SubTwoCategory::where('sub_category_id', $sub_cat_id)->where('deleted', 0)->select('id', 'title_ar as title', 'image')->get();
+            $data['categories'] = SubTwoCategory::where('sub_category_id', $sub_cat_id)->where('deleted', 0)->select('id', 'title_ar as title', 'image')->orderBy('sort' , 'asc')->get();
         }
         if (count($data['categories']) > 0) {
             for ($i = 0; $i < count($data['categories']); $i++) {
@@ -975,9 +1010,9 @@ class CategoryController extends Controller
     public function show_four_cat(Request $request, $sub_sub_cat_id)
     {
         if ($request->lang == 'en') {
-            $data['categories'] = SubThreeCategory::where('sub_category_id', $sub_sub_cat_id)->where('deleted', 0)->select('id', 'title_en as title', 'image')->get();
+            $data['categories'] = SubThreeCategory::where('sub_category_id', $sub_sub_cat_id)->where('deleted', 0)->select('id', 'title_en as title', 'image')->orderBy('sort' , 'asc')->get();
         } else {
-            $data['categories'] = SubThreeCategory::where('sub_category_id', $sub_sub_cat_id)->where('deleted', 0)->select('id', 'title_ar as title', 'image')->get();
+            $data['categories'] = SubThreeCategory::where('sub_category_id', $sub_sub_cat_id)->where('deleted', 0)->select('id', 'title_ar as title', 'image')->orderBy('sort' , 'asc')->get();
         }
         if (count($data['categories']) > 0) {
             for ($i = 0; $i < count($data['categories']); $i++) {
@@ -995,9 +1030,9 @@ class CategoryController extends Controller
     public function show_five_cat(Request $request, $sub_sub_cat_id)
     {
         if ($request->lang == 'en') {
-            $data['categories'] = SubFourCategory::where('sub_category_id', $sub_sub_cat_id)->where('deleted', 0)->select('id', 'title_en as title', 'image')->get();
+            $data['categories'] = SubFourCategory::where('sub_category_id', $sub_sub_cat_id)->where('deleted', 0)->select('id', 'title_en as title', 'image')->orderBy('sort' , 'asc')->get();
         } else {
-            $data['categories'] = SubFourCategory::where('sub_category_id', $sub_sub_cat_id)->where('deleted', 0)->select('id', 'title_ar as title', 'image')->get();
+            $data['categories'] = SubFourCategory::where('sub_category_id', $sub_sub_cat_id)->where('deleted', 0)->select('id', 'title_ar as title', 'image')->orderBy('sort' , 'asc')->get();
         }
         if (count($data['categories']) > 0) {
             for ($i = 0; $i < count($data['categories']); $i++) {
@@ -1015,9 +1050,9 @@ class CategoryController extends Controller
     public function show_six_cat(Request $request, $sub_sub_cat_id)
     {
         if ($request->lang == 'en') {
-            $data['categories'] = SubFiveCategory::where('sub_category_id', $sub_sub_cat_id)->where('deleted', '0')->select('id', 'title_en as title', 'image')->get();
+            $data['categories'] = SubFiveCategory::where('sub_category_id', $sub_sub_cat_id)->where('deleted', '0')->select('id', 'title_en as title', 'image')->orderBy('sort' , 'asc')->get();
         } else {
-            $data['categories'] = SubFiveCategory::where('sub_category_id', $sub_sub_cat_id)->where('deleted', '0')->select('id', 'title_ar as title', 'image')->get();
+            $data['categories'] = SubFiveCategory::where('sub_category_id', $sub_sub_cat_id)->where('deleted', '0')->select('id', 'title_ar as title', 'image')->orderBy('sort' , 'asc')->get();
         }
         $response = APIHelpers::createApiResponse(false, 200, '', '', $data, $request->lang);
         return response()->json($response, 200);

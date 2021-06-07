@@ -130,6 +130,8 @@ Route::group(['middleware'=>'language','prefix' => "admin-panel",'namespace' => 
         Route::get('delete/{id}' , 'CategoryController@delete');
         Route::get('products/{category}' , 'CategoryController@category_products')->name('category.products');
     });
+    Route::post('categories/sort' , 'categories\CategoryController@sort')->name('category.sort');
+
 
     //cat_options
     Route::resource('cat_options' , 'categories\CategoryOptionsController');
@@ -155,6 +157,7 @@ Route::group(['middleware'=>'language','prefix' => "admin-panel",'namespace' => 
         Route::post('sub_cat/update/{id}' , 'SubCategoryController@update')->name("sub_cat.update.new");
         Route::get('sub_cat/delete/{id}' , 'SubCategoryController@destroy')->name("sub_cat.delete");
     });
+    Route::post('sub_cat/sort' , 'categories\SubCategoryController@sort')->name('sub_cat.sort');
 
     // Sub two Categories Route
     Route::group(["prefix" => "categories","namespace" => "categories"], function($router){
@@ -163,6 +166,7 @@ Route::group(['middleware'=>'language','prefix' => "admin-panel",'namespace' => 
         Route::post('sub_two_cat/update/{id}' , 'SubTwoCategoryController@update')->name("sub_two_cat.update.new");
         Route::get('sub_two_cat/delete/{id}' , 'SubTwoCategoryController@destroy')->name("sub_two_cat.delete");
     });
+    Route::post('sub_two_cat/sort' , 'categories\SubTwoCategoryController@sort')->name('sub_two_cat.sort');
     // Sub three Categories Route
     Route::group(["prefix" => "categories","namespace" => "categories"], function($router){
         Route::resource('sub_three_cat', 'SubThreeCategoryController');
@@ -170,6 +174,7 @@ Route::group(['middleware'=>'language','prefix' => "admin-panel",'namespace' => 
         Route::post('sub_three_cat/update/{id}' , 'SubThreeCategoryController@update')->name("sub_three_cat.update.new");
         Route::get('sub_three_cat/delete/{id}' , 'SubThreeCategoryController@destroy')->name("sub_three_cat.delete");
     });
+    Route::post('sub_three_cat/sort' , 'categories\SubThreeCategoryController@sort')->name('sub_three_cat.sort');
     // Sub four Categories Route
     Route::group(["prefix" => "categories","namespace" => "categories"], function($router){
         Route::resource('sub_four_cat', 'SubFourCategoryController');
@@ -177,6 +182,7 @@ Route::group(['middleware'=>'language','prefix' => "admin-panel",'namespace' => 
         Route::post('sub_four_cat/update/{id}' , 'SubFourCategoryController@update')->name("sub_four_cat.update.new");
         Route::get('sub_four_cat/delete/{id}' , 'SubFourCategoryController@destroy')->name("sub_four_cat.delete");
     });
+    Route::post('sub_four_cat/sort' , 'categories\SubFourCategoryController@sort')->name('sub_four_cat.sort');
     // Sub five Categories Route
     Route::group(["prefix" => "categories","namespace" => "categories"], function($router){
         Route::resource('sub_five_cat', 'SubFiveCategoryController');
@@ -184,6 +190,7 @@ Route::group(['middleware'=>'language','prefix' => "admin-panel",'namespace' => 
         Route::post('sub_five_cat/update/{id}' , 'SubFiveCategoryController@update')->name("sub_five_cat.update.new");
         Route::get('sub_five_cat/delete/{id}' , 'SubFiveCategoryController@destroy')->name("sub_five_cat.delete");
     });
+    Route::post('sub_five_cat/sort' , 'categories\SubFiveCategoryController@sort')->name('sub_five_cat.sort');
 
 
     // Contact Us Messages Route

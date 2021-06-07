@@ -31,7 +31,7 @@ class CategoryController extends AdminController{
     }
     // get all categories
     public function show(){
-        $data['categories'] = Category::where('deleted' , 0)->orderBy('id' , 'desc')->get();
+        $data['categories'] = Category::where('deleted' , 0)->orderBy('sort' , 'asc')->get();
         return view('admin.categories.index' , ['data' => $data]);
     }
     // get edit page
@@ -77,5 +77,24 @@ class CategoryController extends AdminController{
             $data['category'] = $category->title_ar;
         }
         return view('admin.products.products', ['data' => $data]);
+    }
+
+    // sorting
+    public function sort(Request $request) {
+        $post = $request->all();
+        $count = 0;
+        for ($i = 0; $i < count($post['id']); $i ++) :
+            $index = $post['id'][$i];
+            $home_section = Category::findOrFail($index);
+            $count ++;
+            $newPosition = $count;
+            $data['sort'] = $newPosition;
+            if($home_section->update($data)) {
+                echo "success";
+            }else {
+                echo "failed";
+            }
+        endfor;
+        exit('success');
     }
 }

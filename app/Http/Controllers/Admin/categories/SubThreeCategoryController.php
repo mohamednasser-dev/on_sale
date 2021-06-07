@@ -41,8 +41,27 @@ class SubThreeCategoryController extends AdminController
     public function show($id)
     {
         $cat_id = $id;
-        $data = SubThreeCategory::where('sub_category_id',$id)->where('deleted','0')->get();
+        $data = SubThreeCategory::where('sub_category_id',$id)->where('deleted','0')->orderBy('sort' , 'asc')->get();
         return view('admin.categories.sub_category.sub_two_category.sub_three_category.index',compact('data','cat_id'));
+    }
+
+    // sorting
+    public function sort(Request $request) {
+        $post = $request->all();
+        $count = 0;
+        for ($i = 0; $i < count($post['id']); $i ++) :
+            $index = $post['id'][$i];
+            $home_section = SubThreeCategory::findOrFail($index);
+            $count ++;
+            $newPosition = $count;
+            $data['sort'] = $newPosition;
+            if($home_section->update($data)) {
+                echo "success";
+            }else {
+                echo "failed";
+            }
+        endfor;
+        exit('success');
     }
 
     public function edit($id) {
