@@ -28,15 +28,57 @@ class CategoryController extends Controller
 
     public function getcategories(Request $request)
     {
+//        $array = [0 => "a", 1 => "b", 2 => "c"];
+//        unset($array[1]);
+//        dd($array);
         if ($request->lang == 'en') {
             $categories = Category::where('deleted', 0)->select('id', 'title_en as title', 'image')->orderBy('sort' , 'asc')->get();
-            for ($i = 0; $i < count($categories); $i++) {
-                $categories[$i]['products_count'] = Product::where('category_id', $categories[$i]['id'])->where('status', 1)->where('publish', 'Y')->where('deleted', 0)->count();
-            }
         } else {
             $categories = Category::where('deleted', 0)->select('id', 'title_ar as title', 'image')->orderBy('sort' , 'asc')->get();
-            for ($i = 0; $i < count($categories); $i++) {
-                $categories[$i]['products_count'] = Product::where('category_id', $categories[$i]['id'])->where('status', 1)->where('publish', 'Y')->where('deleted', 0)->count();
+        }
+
+        for ($i = 0; $i < count($categories); $i++) {
+
+            $categories[$i]['products_count'] = Product::where('category_id', $categories[$i]['id'])->where('status', 1)->where('publish', 'Y')->where('deleted', 0)->count();
+            $sub_categories = SubCategory::where('category_id', $categories[$i]['id'])->where('deleted', 0)->count();
+            $sub_cat_ids = SubCategory::where('category_id', $categories[$i]['id'])->where('deleted', 0)->select('id')->get()->toArray();
+            $next_level_sub_cat = SubTwoCategory::whereIn('sub_category_id',$sub_cat_ids)->where('deleted',0)->get()->count();
+            if($categories[$i]['products_count'] == 0 && $sub_categories == 0 && $next_level_sub_cat == 0){
+                $categories[$i]['Visible'] = false ;
+//                array_splice($categories);
+            }else{
+                $categories[$i]['Visible'] = true ;
+            }
+
+            //text next level
+            $subTwoCats = SubCategory::where('category_id', $categories[$i]['id'])->where('deleted',0)->select('id')->first();
+            $categories[$i]['next_level'] = false;
+            if (isset($subTwoCats['id'])) {
+                $categories[$i]['next_level'] = true;
+            }
+
+
+            if($categories[$i]['next_level'] == true) {
+                // check after this level layers
+                $data_ids = SubCategory::where('deleted', '0')->where('category_id',$categories[$i]['id'])->select('id')->get()->toArray();
+                    $subFiveCats = SubTwoCategory::whereIn('sub_category_id', $data_ids)->where('deleted', '0')->select('id', 'deleted')->get();
+                    if(count($subFiveCats) == 0){
+                        $have_next_level = false;
+                    }else{
+                        $have_next_level = true;
+                    }
+                    if($have_next_level == false){
+                        $categories[$i]['next_level'] = false;
+                    }else{
+                        $categories[$i]['next_level'] = true;
+                        break;
+                    }
+                //End check
+            }
+        }
+        foreach ($categories as $key => $row){
+            if($row->Visible == false){
+                unset($categories[$key]);
             }
         }
         // $data = Categories_ad::select('image','ad_type','content as link')->where('type','category')->inRandomOrder()->take(1)->get();
@@ -49,20 +91,77 @@ class CategoryController extends Controller
     {
         if ($request->lang == 'en') {
             $data['sub_categories'] = SubCategory::where('deleted', 0)->where('category_id', $request->category_id)->select('id', 'image', 'title_en as title')->orderBy('sort' , 'asc')->get()->toArray();
-            $data['sub_category_array'] = Category::select('id', 'title_en as title')->orderBy('sort' , 'asc')->get();
+
+            $sub_category_array = Category::select('id', 'title_en as title')->where('deleted', 0)->orderBy('sort' , 'asc')->get();
             $data['category'] = Category::select('id', 'title_en as title')->find($request->category_id);
         } else {
             $data['sub_categories'] = SubCategory::where('deleted', 0)->where('category_id', $request->category_id)->select('id', 'image', 'title_ar as title')->orderBy('sort' , 'asc')->get()->toArray();
-            $data['sub_category_array'] = Category::select('id', 'title_ar as title')->orderBy('sort' , 'asc')->get();
+            $sub_category_array = Category::select('id', 'title_ar as title')->where('deleted', 0)->orderBy('sort' , 'asc')->get();
             $data['category'] = Category::select('id', 'title_ar as title')->find($request->category_id);
+        }
+
+        for ($i = 0; $i < count($data['sub_categories']); $i++) {
+
+            $products_count = Product::where('sub_category_id', $data['sub_categories'][$i]['id'])->where('status', 1)->where('publish', 'Y')->where('deleted', 0)->count();
+            $sub_two_categories = SubTwoCategory::where('sub_category_id', $data['sub_categories'][$i]['id'])->where('deleted', 0)->count();
+            $sub_two_cat_ids = SubTwoCategory::where('sub_category_id', $data['sub_categories'][$i]['id'])->where('deleted', 0)->select('id')->get()->toArray();
+            $next_level_sub_two_cat = SubThreeCategory::whereIn('sub_category_id',$sub_two_cat_ids)->where('deleted',0)->get()->count();
+            if( $products_count == 0 && $sub_two_categories == 0 && $next_level_sub_two_cat == 0){
+                $data['sub_categories'][$i]['Visible'] = false ;
+//                array_splice($categories);
+            }else{
+                $data['sub_categories'][$i]['Visible'] = true ;
+            }
+
+        }
+
+//        foreach ($data['sub_categories'] as $key => $row){
+//
+//            if($row->Visible == false){
+//                unset($data['sub_categories'][$key]);
+//            }
+//        }
+
+
+
+        //for Category visability
+        for ($i = 0; $i < count($sub_category_array); $i++) {
+
+            $sub_category_array[$i]['products_count'] = Product::where('category_id', $sub_category_array[$i]['id'])->where('status', 1)->where('publish', 'Y')->where('deleted', 0)->count();
+            $sub_categories = SubCategory::where('category_id', $sub_category_array[$i]['id'])->where('deleted', 0)->count();
+            $sub_cat_ids = SubCategory::where('category_id', $sub_category_array[$i]['id'])->where('deleted', 0)->select('id')->get()->toArray();
+            $next_level_sub_cat = SubTwoCategory::whereIn('sub_category_id',$sub_cat_ids)->where('deleted',0)->get()->count();
+            if($sub_category_array[$i]['products_count'] == 0 && $sub_categories == 0 && $next_level_sub_cat == 0){
+                $sub_category_array[$i]['Visible'] = false ;
+//                array_splice($sub_category_array);
+            }else{
+                $sub_category_array[$i]['Visible'] = true ;
+            }
+        }
+        foreach ($sub_category_array as $key => $row){
+            if($row->Visible == false){
+                unset($sub_category_array[$key]);
+            }
+        }
+
+        $data['sub_category_array'] = $sub_category_array ;
+
+        foreach ($data['sub_category_array'] as $key => $row){
+            if ($data['sub_category_array'][$key]['id'] == $request->category_id) {
+                $data['sub_category_array'][$key]['selected'] = true;
+            } else {
+                $data['sub_category_array'][$key]['selected'] = false;
+            }
         }
         for ($i = 0; $i < count($data['sub_categories']); $i++) {
             $cat_ids[$i] = $data['sub_categories'][$i]['id'];
             $subTwoCats = SubTwoCategory::where('sub_category_id', $data['sub_categories'][$i]['id'])->where('deleted',0)->select('id')->first();
-            $data['sub_categories'][$i]['next_level'] = false;
-            if (isset($subTwoCats['id'])) {
+            if($subTwoCats != null){
                 $data['sub_categories'][$i]['next_level'] = true;
+            }else{
+                $data['sub_categories'][$i]['next_level'] = false;
             }
+
 
             if($data['sub_categories'][$i]['next_level'] == true) {
                 // check after this level layers
