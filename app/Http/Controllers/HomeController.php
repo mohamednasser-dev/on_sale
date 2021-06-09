@@ -172,11 +172,12 @@ class HomeController extends Controller
             $data['ads_top'] = (object)[];
         }
         $lang = $request->lang;
-        if ($request->lang == 'en') {
-            $categories = Category::where('deleted', 0)->select('id', 'title_en as title', 'image')->get();
-        } else {
-            $categories = Category::where('deleted', 0)->select('id', 'title_ar as title', 'image')->get();
-        }
+        $categories = Category::where(function ($q) {
+            $q->has('SubCategories', '>', 0)->orWhere(function ($qq) {
+                $qq->has('Products', '>', 0);
+            });
+        })->where('deleted', 0)->select('id', 'title_' . $lang . ' as title', 'image')->get();
+
         for ($i = 0; $i < count($categories); $i++) {
             $categories[$i]['products_count'] = Product::where('category_id', $categories[$i]['id'])->where('status', 1)->where('publish', 'Y')->where('deleted', 0)->count();
             //text next level

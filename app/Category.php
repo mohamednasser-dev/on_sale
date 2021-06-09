@@ -9,6 +9,10 @@ class Category extends Model
     protected $fillable = ['image', 'title_en', 'title_ar', 'deleted','sort'];
 
     public function products() {
-        return $this->hasMany('App\Product', 'category_id');
+        return $this->hasMany('App\Product', 'category_id')->where('status', 1)->where('publish', 'Y')->where('deleted', 0);
+    }
+
+    public function SubCategories() {
+        return $this->hasMany('App\SubTwoCategory', 'sub_category_id')->where('deleted', 0);
     }
 }

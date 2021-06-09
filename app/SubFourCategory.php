@@ -12,4 +12,12 @@ class SubFourCategory extends Model
     public function category() {
         return $this->belongsTo('App\SubThreeCategory', 'sub_category_id');
     }
+
+    public function products() {
+        return $this->hasMany('App\Product', 'sub_category_four_id')->where('status', 1)->where('publish', 'Y')->where('deleted', 0);
+    }
+
+    public function SubCategories() {
+        return $this->hasMany('App\SubFiveCategory', 'sub_category_id')->where('deleted', '0');
+    }
 }
