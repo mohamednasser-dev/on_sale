@@ -184,6 +184,14 @@ class CategoryController extends Controller
                     $qq->has('Products', '>', 0);
                 });
             })->where('sub_category_id', $request->sub_category_id)->select('id', 'title_' . $lang . ' as title', 'sub_category_id')->orderBy('sort', 'asc')->get()->makeHidden('category_id');
+            if(count($data['sub_category_array']) == 0){
+                $data['sub_category_array'] = SubCategory::where(function ($q) {
+                    $q->has('SubCategories', '>', 0)->orWhere(function ($qq) {
+                        $qq->has('Products', '>', 0);
+                    });
+                })->where('category_id', $request->category_id)->select('id', 'title_' . $lang . ' as title', 'category_id')->orderBy('sort', 'asc')->get()->makeHidden('category_id');
+
+            }
             $data['category'] = Category::where('id', $data['sub_category_level1']['category_id'])->select('id', 'title_' . $lang . ' as title')->first();
         } else {
             $subCategories = SubCategory::where('category_id', $request->category_id)->pluck('id')->toArray();
@@ -197,7 +205,19 @@ class CategoryController extends Controller
                 "title" => "All",
                 "category_id" => $request->category_id
             ];
-            $data['sub_category_array'] = SubTwoCategory::where('sub_category_id', $request->sub_category_id)->select('id', 'title_' . $lang . ' as title', 'sub_category_id')->orderBy('sort', 'asc')->get()->makeHidden('category_id');
+            $data['sub_category_array'] = SubTwoCategory::where(function ($q) {
+                $q->has('SubCategories', '>', 0)->orWhere(function ($qq) {
+                    $qq->has('Products', '>', 0);
+                });
+            })->where('sub_category_id', $request->sub_category_id)->select('id', 'title_' . $lang . ' as title', 'sub_category_id')->orderBy('sort', 'asc')->get()->makeHidden('category_id');
+            if(count($data['sub_category_array']) == 0){
+                $data['sub_category_array'] = SubCategory::where(function ($q) {
+                    $q->has('SubCategories', '>', 0)->orWhere(function ($qq) {
+                        $qq->has('Products', '>', 0);
+                    });
+                })->where('category_id', $request->category_id)->select('id', 'title_' . $lang . ' as title', 'category_id')->orderBy('sort', 'asc')->get()->makeHidden('category_id');
+
+            }
             $data['category'] = Category::where('id', $request->category_id)->select('id', 'title_' . $lang . ' as title')->first();
         }
 

@@ -31,7 +31,7 @@ class Product extends Model
         return $this->hasMany('App\Product_feature', 'product_id');
     }
     public function Views() {
-        return $this->hasMany('App\Category_option_value', 'product_id');
+        return $this->hasMany('App\Product_view', 'product_id');
     }
     public function City() {
         return $this->belongsTo('App\City', 'city_id');
