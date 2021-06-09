@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\SubCategory;
+use App\SubTwoCategory;
 use Illuminate\Http\Request;
 use App\Helpers\APIHelpers;
 use App\Balance_package;
@@ -172,15 +174,37 @@ class HomeController extends Controller
         $lang = $request->lang;
         if ($request->lang == 'en') {
             $categories = Category::where('deleted', 0)->select('id', 'title_en as title', 'image')->get();
-            for ($i = 0; $i < count($categories); $i++) {
-                $categories[$i]['products_count'] = Product::where('category_id', $categories[$i]['id'])->where('status', 1)->where('publish', 'Y')->where('deleted', 0)->count();
-            }
         } else {
             $categories = Category::where('deleted', 0)->select('id', 'title_ar as title', 'image')->get();
-            for ($i = 0; $i < count($categories); $i++) {
-                $categories[$i]['products_count'] = Product::where('category_id', $categories[$i]['id'])->where('status', 1)->where('publish', 'Y')->where('deleted', 0)->count();
+        }
+        for ($i = 0; $i < count($categories); $i++) {
+            $categories[$i]['products_count'] = Product::where('category_id', $categories[$i]['id'])->where('status', 1)->where('publish', 'Y')->where('deleted', 0)->count();
+            //text next level
+            $subTwoCats = SubCategory::where('category_id', $categories[$i]['id'])->where('deleted', 0)->select('id')->first();
+            $categories[$i]['next_level'] = false;
+            if (isset($subTwoCats['id'])) {
+                $categories[$i]['next_level'] = true;
+            }
+            if ($categories[$i]['next_level'] == true) {
+                // check after this level layers
+                $data_ids = SubCategory::where('deleted', '0')->where('category_id', $categories[$i]['id'])->select('id')->get()->toArray();
+                $subFiveCats = SubTwoCategory::whereIn('sub_category_id', $data_ids)->where('deleted', '0')->select('id', 'deleted')->get();
+                if (count($subFiveCats) == 0) {
+                    $have_next_level = false;
+                } else {
+                    $have_next_level = true;
+                }
+                if ($have_next_level == false) {
+                    $categories[$i]['next_level'] = false;
+                } else {
+                    $categories[$i]['next_level'] = true;
+                    break;
+                }
+                //End check
             }
         }
+
+
         $data['categories'] = $categories;
         if ($lang == 'ar') {
             $data['offer_image'] = Setting::where('id', 1)->first()->offer_image;

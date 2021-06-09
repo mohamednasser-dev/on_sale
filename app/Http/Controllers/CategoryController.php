@@ -25,12 +25,8 @@ class CategoryController extends Controller
     {
         $this->middleware('auth:api', ['except' => ['getSubCategoryOptions', 'show_six_cat', 'getCategoryOptions', 'show_five_cat', 'show_four_cat', 'show_third_cat', 'show_second_cat', 'show_first_cat', 'getcategories', 'getAdSubCategories', 'get_sub_categories_level2', 'get_sub_categories_level3', 'get_sub_categories_level4', 'get_sub_categories_level5', 'getproducts']]);
     }
-
     public function getcategories(Request $request)
     {
-//        $array = [0 => "a", 1 => "b", 2 => "c"];
-//        unset($array[1]);
-//        dd($array);
         if ($request->lang == 'en') {
             $categories = Category::where('deleted', 0)->select('id', 'title_en as title', 'image')->orderBy('sort', 'asc')->get();
         } else {
