@@ -191,10 +191,14 @@ class HomeController extends Controller
                 $data_ids = SubCategory::where('deleted', '0')->where('category_id', $categories[$i]['id'])->select('id')->get()->toArray();
                 $subFiveCats = SubTwoCategory::whereIn('sub_category_id', $data_ids)->where('deleted', 0)->select('id', 'deleted')->get();
                 if (count($subFiveCats) == 0) {
+                    $have_next_level = false;
+                } else {
+                    $have_next_level = true;
+                }
+                if ($have_next_level == false) {
                     $categories[$i]['next_level'] = false;
                 } else {
                     $categories[$i]['next_level'] = true;
-                    break;
                 }
                 //End check
             }
