@@ -1323,6 +1323,21 @@ class ProductController extends Controller
             ->with('Area_api')
             ->select('id', 'category_id', 'sub_category_id', 'sub_category_two_id', 'sub_category_three_id', 'sub_category_four_id', 'sub_category_five_id', 'title', 'price', 'description', 'main_image', 'city_id', 'area_id', 'share_location', 'latitude', 'longitude')
             ->first();
+        if($data['ad']['sub_category_id'] == null){
+            $data['ad']['sub_category_id'] = 0;
+        }
+        if($data['ad']['sub_category_two_id'] == null){
+            $data['ad']['sub_category_two_id'] = 0;
+        }
+        if($data['ad']['sub_category_three_id'] == null){
+            $data['ad']['sub_category_three_id'] = 0;
+        }
+        if($data['ad']['sub_category_four_id'] == null){
+            $data['ad']['sub_category_four_id'] = 0;
+        }
+        if($data['ad']['sub_category_five_id'] == null){
+            $data['ad']['sub_category_five_id'] = 0;
+        }
         if ($data['ad']->share_location == '1') {
             $data['ad']->share_location = true;
         } else {
