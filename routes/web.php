@@ -149,6 +149,10 @@ Route::group(['middleware'=>'language','prefix' => "admin-panel",'namespace' => 
     Route::get('sub_options_values/deleted/{id}' , 'categories\SubOptionsValuesController@destroy')->name('sub_options_values.deleted');
     Route::post('sub_options_values/update_new/{id}' , 'categories\SubOptionsValuesController@update')->name('sub_options_values.update.new');
 
+    //sub_two_cat_options
+//    Route::get('sub_cat_two_options/{id}' , 'categories\SubCategoryOptionsController@show')->name('sub_cat_options.show');
+    Route::resource('sub_cat_two_options' , 'categories\SubTwoCategoryOptionsController');
+
 
     // Sub Categories Route
     Route::group(["prefix" => "categories","namespace" => "categories"], function($router){

@@ -6,14 +6,11 @@ use JD\Cloudder\Facades\Cloudder;
 use Illuminate\Http\Request;
 use App\Category_option;
 
-class SubCategoryOptionsController extends AdminController{
-    public function index()
-    {
-    }
+class SubTwoCategoryOptionsController extends AdminController{
 
     public function show($id){
-        $data = Category_option::where('deleted','0')->where('cat_id',$id)->where('cat_type','subcategory')->get();
-        return view('admin.categories.sub_category.sub_category_options.index',compact('data','id'));
+        $data = Category_option::where('deleted','0')->where('cat_id',$id)->where('cat_type','subTwoCategory')->get();
+        return view('admin.categories.sub_category.sub_two_category.sub_two_category_options.index',compact('data','id'));
     }
 
     public function store(Request $request){
@@ -33,7 +30,7 @@ class SubCategoryOptionsController extends AdminController{
         $image_format = $imagereturned['format'];
         $image_new_name = $image_id.'.'.$image_format;
         $data['image'] = $image_new_name ;
-        $data['cat_type'] = 'subcategory' ;
+        $data['cat_type'] = 'subTwoCategory' ;
         Category_option::create($data);
         session()->flash('success', trans('messages.added_s'));
         return back();

@@ -44,6 +44,7 @@
                             <th class="text-center">{{ __('messages.image') }}</th>
                             <th class="text-center">{{ __('messages.name') }}</th>
                             <th class="text-center">{{ __('messages.sub_category_third') }}</th>
+                            <th class="text-center">{{ __('messages.cat_options') }}</th>
                             @if(Auth::user()->update_data)<th class="text-center">{{ __('messages.edit') }}</th>@endif
                             @if(Auth::user()->delete_data)<th class="text-center" >{{ __('messages.delete') }}</th>@endif
                         </tr>
@@ -64,6 +65,19 @@
                                                 <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
                                                 <polyline points="2 17 12 22 22 17"></polyline>
                                                 <polyline points="2 12 12 17 22 12"></polyline>
+                                            </svg>
+                                        </div>
+                                    </a>
+                                </td>
+                                <td class="text-center blue-color">
+                                    <a href="{{route('sub_cat_two_options.show',$row->id)}}">
+                                        <div class="">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                 stroke-linejoin="round" class="feather feather-inbox">
+                                                <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
+                                                <path
+                                                    d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
                                             </svg>
                                         </div>
                                     </a>
