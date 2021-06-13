@@ -108,10 +108,15 @@ class CategoryController extends Controller
 
                         $data_ids = SubTwoCategory::where('deleted', '0')->where('sub_category_id', $subTwoCats->i)->select('id')->get()->toArray();
                         $subFiveCats = SubThreeCategory::whereIn('sub_category_id', $data_ids)->where('deleted', 0)->select('id', 'deleted')->get();
-                        if ($subFiveCats == null) {
-                            $data['sub_categories'][$i]['next_level'] = false;
+                        if (count($subFiveCats) == 0) {
+                            $have_next_level = false;
                         } else {
-                            $data['sub_categories'][$i]['next_level'] = true;
+                            $have_next_level = true;
+                        }
+                        if ($have_next_level == false) {
+                            $categories[$i]['next_level'] = false;
+                        } else {
+                            $categories[$i]['next_level'] = true;
                             break;
                         }
                     }
@@ -237,15 +242,15 @@ class CategoryController extends Controller
                     if (count($data['sub_next_categories']) > 0) {
                         for ($i = 0; $i < count($data['sub_next_categories']); $i++) {
                             $subFiveCats = SubFourCategory::where('sub_category_id', $data['sub_next_categories'][$i]['id'])->where('deleted', '0')->select('id', 'deleted')->first();
-                            if ($subFiveCats == null) {
+                            if (count($subFiveCats) == 0) {
                                 $have_next_level = false;
                             } else {
                                 $have_next_level = true;
                             }
                             if ($have_next_level == false) {
-                                $data['sub_categories'][$i]['next_level'] = false;
+                                $categories[$i]['next_level'] = false;
                             } else {
-                                $data['sub_categories'][$i]['next_level'] = true;
+                                $categories[$i]['next_level'] = true;
                                 break;
                             }
                         }
@@ -387,15 +392,15 @@ class CategoryController extends Controller
                     if (count($data['sub_next_categories']) > 0) {
                         for ($i = 0; $i < count($data['sub_next_categories']); $i++) {
                             $subFiveCats = SubFiveCategory::where('sub_category_id', $data['sub_next_categories'][$i]['id'])->where('deleted', '0')->select('id', 'deleted')->first();
-                            if ($subFiveCats == null) {
+                            if (count($subFiveCats) == 0) {
                                 $have_next_level = false;
                             } else {
                                 $have_next_level = true;
                             }
                             if ($have_next_level == false) {
-                                $data['sub_categories'][$i]['next_level'] = false;
+                                $categories[$i]['next_level'] = false;
                             } else {
-                                $data['sub_categories'][$i]['next_level'] = true;
+                                $categories[$i]['next_level'] = true;
                                 break;
                             }
                         }
