@@ -34,6 +34,7 @@ class CategoryController extends Controller
                 $qq->has('Products', '>', 0);
             });
         })->where('deleted', 0)->select('id', 'title_' . $lang . ' as title', 'image')->orderBy('sort', 'asc')->get();
+
         for ($i = 0; $i < count($categories); $i++) {
             //text next level
             $subTwoCats = SubCategory::where('category_id', $categories[$i]['id'])->where('deleted', 0)->select('id')->first();
@@ -89,8 +90,8 @@ class CategoryController extends Controller
         }
 
         for ($i = 0; $i < count($data['sub_categories']); $i++) {
-            $cat_ids[$i] = $data['sub_categories'][$i]['id'];
             $subTwoCats = SubTwoCategory::where('sub_category_id', $data['sub_categories'][$i]['id'])->where('deleted', 0)->select('id')->first();
+
             if ($subTwoCats != null) {
                 $data['sub_categories'][$i]['next_level'] = true;
             } else {
@@ -103,13 +104,11 @@ class CategoryController extends Controller
                 $data['sub_next_categories'] = SubTwoCategory::where('deleted', '0')->where('sub_category_id', $subTwoCats->id)->select('id', 'image', 'title_' . $lang . ' as title')->orderBy('sort', 'asc')->get()->toArray();
                 if (count($data['sub_next_categories']) > 0) {
                     for ($i = 0; $i < count($data['sub_next_categories']); $i++) {
-                        $subFiveCats = SubThreeCategory::where('sub_category_id', $data['sub_next_categories'][$i]['id'])->where('deleted', '0')->select('id', 'deleted')->first();
+//                        $subFiveCats = SubThreeCategory::where('sub_category_id', $data['sub_next_categories'][$i]['id'])->where('deleted', '0')->select('id', 'deleted')->first();
+
+                        $data_ids = SubTwoCategory::where('deleted', '0')->where('sub_category_id',  $subTwoCats->i)->select('id')->get()->toArray();
+                        $subFiveCats = SubThreeCategory::whereIn('sub_category_id', $data_ids)->where('deleted', 0)->select('id', 'deleted')->get();
                         if ($subFiveCats == null) {
-                            $have_next_level = false;
-                        } else {
-                            $have_next_level = true;
-                        }
-                        if ($have_next_level == false) {
                             $data['sub_categories'][$i]['next_level'] = false;
                         } else {
                             $data['sub_categories'][$i]['next_level'] = true;

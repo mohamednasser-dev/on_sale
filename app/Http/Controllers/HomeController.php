@@ -176,7 +176,7 @@ class HomeController extends Controller
             $q->has('SubCategories', '>', 0)->orWhere(function ($qq) {
                 $qq->has('Products', '>', 0);
             });
-        })->where('deleted', 0)->select('id', 'title_' . $lang . ' as title', 'image')->get();
+        })->where('deleted', 0)->select('id', 'title_' . $lang . ' as title', 'image')->orderBy('sort', 'asc')->get();
 
         for ($i = 0; $i < count($categories); $i++) {
             $categories[$i]['products_count'] = Product::where('category_id', $categories[$i]['id'])->where('status', 1)->where('publish', 'Y')->where('deleted', 0)->count();
@@ -189,13 +189,8 @@ class HomeController extends Controller
             if ($categories[$i]['next_level'] == true) {
                 // check after this level layers
                 $data_ids = SubCategory::where('deleted', '0')->where('category_id', $categories[$i]['id'])->select('id')->get()->toArray();
-                $subFiveCats = SubTwoCategory::whereIn('sub_category_id', $data_ids)->where('deleted', '0')->select('id', 'deleted')->get();
+                $subFiveCats = SubTwoCategory::whereIn('sub_category_id', $data_ids)->where('deleted', 0)->select('id', 'deleted')->get();
                 if (count($subFiveCats) == 0) {
-                    $have_next_level = false;
-                } else {
-                    $have_next_level = true;
-                }
-                if ($have_next_level == false) {
                     $categories[$i]['next_level'] = false;
                 } else {
                     $categories[$i]['next_level'] = true;
@@ -204,7 +199,6 @@ class HomeController extends Controller
                 //End check
             }
         }
-
 
         $data['categories'] = $categories;
         if ($lang == 'ar') {

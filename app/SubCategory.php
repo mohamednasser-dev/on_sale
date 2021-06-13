@@ -25,6 +25,10 @@ class SubCategory extends Model
     }
 
     public function SubCategories() {
-        return $this->hasMany('App\SubTwoCategory', 'sub_category_id')->where('deleted', 0);
+        return $this->hasMany('App\SubTwoCategory', 'sub_category_id')->where('deleted', 0)->where(function ($q) {
+                                    $q->has('SubCategories', '>', 0)->orWhere(function ($qq) {
+                                        $qq->has('Products', '>', 0);
+                                    });
+                                });
     }
 }
