@@ -17,7 +17,7 @@ class SubCategory extends Model
     }
 
     public function products() {
-        return $this->hasMany('App\Product', 'sub_category_id');
+        return $this->hasMany('App\Product', 'sub_category_id')->where('status', 1)->where('publish', 'Y')->where('deleted', 0);
     }
 
     public function Products_custom() {
