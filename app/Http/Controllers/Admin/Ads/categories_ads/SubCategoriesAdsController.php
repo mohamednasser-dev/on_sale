@@ -12,7 +12,7 @@ class SubCategoriesAdsController extends AdminController
 {
 
     public function index($id){
-        $data = SubCategory::where('category_id' , $id)->where('deleted' , 0)->orderBy('id' , 'desc')->get();
+        $data = SubCategory::where('category_id' , $id)->where('deleted' , 0)->orderBy('sort' , 'asc')->get();
         $cat_id = $id ;
         return view('admin.ads.categories_ads.sub_category.index' , compact('data','cat_id'));
     }

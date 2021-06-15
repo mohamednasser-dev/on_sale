@@ -12,7 +12,7 @@ class SubTwoCategoriesAdsController extends AdminController
 {
 
     public function index($id){
-        $data = SubTwoCategory::where('sub_category_id' , $id)->where('deleted' , 0)->orderBy('id' , 'desc')->get();
+        $data = SubTwoCategory::where('sub_category_id' , $id)->where('deleted' , 0)->orderBy('sort' , 'asc')->get();
         $cat_id = $id ;
         return view('admin.ads.categories_ads.sub_category.sub_two_category.index' , compact('data','cat_id'));
     }
@@ -37,13 +37,14 @@ class SubTwoCategoriesAdsController extends AdminController
         $data['image'] = $image_new_name;
         $data['cat_id'] = $request->id;
         $data['type'] = 'sub_two_category';
-        Categories_ad::create($data);
         if($request->ad_type == 'out'){
             $data['ad_type'] = $request->ad_type;
             $data['content'] = $request->content;
         }else{
             $data['ad_type'] = $request->ad_type;
         }
+        Categories_ad::create($data);
+
         session()->flash('success', trans('messages.added_s'));
         return redirect(route('sub_two_cat_ads.show',$request->id));
     }
@@ -60,13 +61,14 @@ class SubTwoCategoriesAdsController extends AdminController
             $data['image'] = $image_new_name;
             $data['cat_id'] = $row->id;
             $data['type'] = 'sub_two_category';
-            Categories_ad::create($data);
             if($request->ad_type == 'out'){
                 $data['ad_type'] = $request->ad_type;
                 $data['content'] = $request->content;
             }else{
                 $data['ad_type'] = $request->ad_type;
             }
+            Categories_ad::create($data);
+
         }
         session()->flash('success', trans('messages.added_s'));
         return redirect(route('sub_two_cat_ads.index',$request->id));

@@ -12,7 +12,7 @@ class CategoriesAdsController extends AdminController
 {
 
     public function index(){
-        $data = Category::where('deleted' , 0)->orderBy('id' , 'desc')->get();
+        $data = Category::where('deleted' , 0)->orderBy('sort' , 'asc')->get();
         return view('admin.ads.categories_ads.index' , compact('data'));
     }
 

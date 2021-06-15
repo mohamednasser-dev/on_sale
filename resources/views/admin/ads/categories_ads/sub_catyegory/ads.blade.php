@@ -31,7 +31,7 @@
                         @foreach ($data as $row)
                             <tr>
                                 <td class="text-center"><?=$i;?></td>
-                                <td class="text-center"><img src="https://res.cloudinary.com/carsads2021/image/upload/w_100,q_100/v1581928924/{{ $row->image }}"  /></td>
+                                <td class="text-center"><img src="https://res.cloudinary.com/carsads/image/upload/w_100,q_100/v1581928924/{{ $row->image }}"  /></td>
                                 @if(Auth::user()->delete_data)
                                     <td class="text-center blue-color" ><a onclick="return confirm(trans('messages.are_you_sure_delete'));" href="{{route('categories_ads.delete',$row->id)}}" >
                                         <i class="far fa-trash-alt"></i></a>
