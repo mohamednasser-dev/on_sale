@@ -90,6 +90,7 @@ class HomeController extends Controller
         $data['categories'] = Category::select('id', 'image', 'title_ar as title')->where('deleted', 0)->get();
         $data['offers'] = Product::where('offer', 1)->where('status', 1)->where('deleted', 0)->where('publish', 'Y')->select('id', 'title', 'price', 'type')->get();
         for ($i = 0; $i < count($data['offers']); $i++) {
+            $data['offers'][$i]['price'] = number_format((float)( $data['offers'][$i]['price'] ), 3);
             $data['offers'][$i]['image'] = ProductImage::where('product_id', $data['offers'][$i]['id'])->select('image')->first()['image'];
             $user = auth()->user();
             if ($user) {
@@ -218,13 +219,7 @@ class HomeController extends Controller
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($ads) use ($lang) {
-                if ($ads->price == 0) {
-                    if ($lang == 'ar') {
-                        $ads->price = 'اسأل البائع';
-                    } else {
-                        $ads->price = 'Ask the seller';
-                    }
-                }
+                $ads->price   = number_format((float)( $ads->price ), 3);
                 $ads->time = APIHelpers::get_month_day( $ads->created_at , $lang );
                 return $ads;
             });

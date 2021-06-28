@@ -257,6 +257,7 @@ class UserController extends Controller
 
         $products = Product::where('user_id' , $user->id)->where('status' , 1)->orderBy('publication_date' , 'DESC')->select('id' , 'title' , 'price' , 'publication_date as date' , 'type')->simplePaginate(12);
         for($i =0 ; $i < count($products); $i++){
+            $products[$i]['price'] = number_format((float)( $products[$i]['price'] ), 3);
             $products[$i]['image'] = ProductImage::where('product_id' , $products[$i]['id'])->select('image')->first()['image'];
             $favorite = Favorite::where('user_id' , $user->id)->where('product_id' , $products[$i]['id'])->first();
             if($favorite){
@@ -283,6 +284,7 @@ class UserController extends Controller
 
         $products = Product::where('user_id' , $user->id)->where('status' , 2)->orderBy('publication_date' , 'DESC')->select('id' , 'title' , 'price' , 'publication_date as date' , 'type')->simplePaginate(12);
         for($i =0 ; $i < count($products); $i++){
+            $products[$i]['price'] = number_format((float)( $products[$i]['price'] ), 3);
             $products[$i]['image'] = ProductImage::where('product_id' , $products[$i]['id'])->select('image')->first()['image'];
             $favorite = Favorite::where('user_id' , $user->id)->where('product_id' , $products[$i]['id'])->first();
             if($favorite){
@@ -482,6 +484,7 @@ class UserController extends Controller
         $data['user'] = User::select('id' , 'name' , 'phone' , 'email')->find($user_id);
         $products = Product::where('status' , 1)->where('user_id' , $user_id)->orderBy('publication_date' , 'DESC')->select('id' , 'title' , 'price','type' , 'publication_date as date')->get();
         for($i =0; $i < count($products); $i++){
+            $products[$i]['price'] = number_format((float)( $products[$i]['price'] ), 3);
             $products[$i]['image'] = ProductImage::where('product_id' , $products[$i]['id'])->first()['image'];
             $date = date_create($products[$i]['date']);
             $products[$i]['date'] = date_format($date , 'd M Y');
