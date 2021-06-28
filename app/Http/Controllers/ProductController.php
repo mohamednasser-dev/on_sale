@@ -451,7 +451,7 @@ class ProductController extends Controller
             } else {
                 $products[$i]['favorite'] = false;
             }
-            $products[$i]['time'] = APIHelpers::get_month_day($products[$i]['created_at'], $lang);
+            $products[$i]['time'] = $products[$i]['created_at'];
         }
         $response = APIHelpers::createApiResponse(false, 200, '', '', $products, $request->lang);
         return response()->json($response, 200);
@@ -515,7 +515,7 @@ class ProductController extends Controller
             } else {
                 $products[$i]['favorite'] = false;
             }
-            $products[$i]['time'] = APIHelpers::get_month_day($products[$i]['created_at'], $request->lang);
+            $products[$i]['time'] = $products[$i]['created_at'];
         }
         $data['products'] = $products;
         $response = APIHelpers::createApiResponse(false, 200, '', '', $products, $request->lang);
