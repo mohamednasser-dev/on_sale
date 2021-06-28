@@ -253,7 +253,7 @@ class CategoryController extends Controller
         } else {
             $products = Product::where('status', 1)->where('publish', 'Y')->where('deleted', 0)->where('sub_category_id', $request->sub_category_id)->select('id', 'title', 'price', 'main_image as image', 'created_at', 'pin')->orderBy('pin', 'DESC')->orderBy('created_at', 'desc')->simplePaginate(12);
         }
-        for ($i = 0; $i < count($products); $i++)
+        for ($i = 0; $i < count($products); $i++){
             $products[$i]['price']  = number_format((float)( $products[$i]['price'] ), 3);
             $views = Product_view::where('product_id', $products[$i]['id'])->get()->count();
             $products[$i]['views'] = $views;
