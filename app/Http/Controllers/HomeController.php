@@ -220,7 +220,7 @@ class HomeController extends Controller
             ->get()
             ->map(function ($ads) use ($lang) {
                 $ads->price   = number_format((float)( $ads->price ), 3);
-                $ads->time = APIHelpers::get_month_day( $ads->created_at , $lang );
+                $ads->time = $ads->created_at->format('Y-m-d');
                 return $ads;
             });
         if (count($three) > 0) {

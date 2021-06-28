@@ -144,7 +144,7 @@ class CategoryController extends Controller
                 $products[$i]['favorite'] = false;
                 $products[$i]['conversation_id'] = 0;
             }
-            $products[$i]['time'] = $products[$i]['created_at'];
+            $products[$i]['time'] = $products[$i]['created_at']->format('Y-m-d');
         }
 
         $data['products'] = $products;
@@ -276,7 +276,7 @@ class CategoryController extends Controller
                 $products[$i]['favorite'] = false;
                 $products[$i]['conversation_id'] = 0;
             }
-            $products[$i]['time'] = $products[$i]['created_at'];
+            $products[$i]['time'] = $products[$i]['created_at']->format('Y-m-d');
         }
 
         $data['products'] = $products;
@@ -487,7 +487,7 @@ class CategoryController extends Controller
                 $products[$i]['favorite'] = false;
                 $products[$i]['conversation_id'] = 0;
             }
-            $products[$i]['time'] = $products[$i]['created_at'];
+            $products[$i]['time'] = $products[$i]['created_at']->format('Y-m-d');
         }
         $data['products'] = $products;
 
@@ -662,7 +662,7 @@ class CategoryController extends Controller
                 $products[$i]['favorite'] = false;
                 $products[$i]['conversation_id'] = 0;
             }
-            $products[$i]['time'] = $products[$i]['created_at'];
+            $products[$i]['time'] = $products[$i]['created_at']->format('Y-m-d');
         }
         $data['products'] = $products;
 
@@ -794,7 +794,7 @@ class CategoryController extends Controller
                 $products[$i]['favorite'] = false;
                 $products[$i]['conversation_id'] = 0;
             }
-            $products[$i]['time'] = $products[$i]['created_at'];
+            $products[$i]['time'] = $products[$i]['created_at']->format('Y-m-d');
         }
         $data['products'] = $products;
 
@@ -892,7 +892,7 @@ class CategoryController extends Controller
                 $products[$i]['conversation_id'] = 0;
             }
             $month = $products[$i]['created_at']->format('F');
-            $products[$i]['time'] = $products[$i]['created_at'];
+            $products[$i]['time'] = $products[$i]['created_at']->format('Y-m-d');
         }
         $data['products'] = $products;
         $response = APIHelpers::createApiResponse(false, 200, '', '', $data, $request->lang);

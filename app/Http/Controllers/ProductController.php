@@ -451,7 +451,7 @@ class ProductController extends Controller
             } else {
                 $products[$i]['favorite'] = false;
             }
-            $products[$i]['time'] = $products[$i]['created_at'];
+            $products[$i]['time'] = $products[$i]['created_at']->format('Y-m-d');
         }
         $response = APIHelpers::createApiResponse(false, 200, '', '', $products, $request->lang);
         return response()->json($response, 200);
@@ -515,7 +515,7 @@ class ProductController extends Controller
             } else {
                 $products[$i]['favorite'] = false;
             }
-            $products[$i]['time'] = $products[$i]['created_at'];
+            $products[$i]['time'] = $products[$i]['created_at']->format('Y-m-d');
         }
         $data['products'] = $products;
         $response = APIHelpers::createApiResponse(false, 200, '', '', $products, $request->lang);
@@ -554,7 +554,14 @@ class ProductController extends Controller
         }
         $result = $result->get();
 
-
+        if(count($result) == 0){
+            $result = Product::query();
+            $result = $result->where('publish', 'Y')
+                ->where('status', 1)
+                ->where('deleted', 0)
+                ->where('price', '!=', null)
+                ->orderBy('price', 'asc')->get();
+        }
         $data['max'] = $result->last()->price;
         $data['min'] = $result->first()->price;
 
