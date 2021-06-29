@@ -1162,6 +1162,7 @@ class ProductController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
         $inc = 0;
+        $data =[];
         foreach ($ads as $key => $row) {
             $product = Product::where('id', $row->product_id)->first();
             if ($product != null) {
@@ -1169,7 +1170,7 @@ class ProductController extends Controller
                     $data[$inc]['id'] = $product->id;
                     $data[$inc]['title'] = $product->title;
                     $data[$inc]['image'] = $product->main_image;
-                    $data[$inc]['price'] = $product->price;
+                    $data[$inc]['price'] = number_format((float)( $product->price ), 3) ;
                     $data[$inc]['description'] = $product->description;
                     $favorite = Favorite::where('user_id', $user->id)->where('product_id', $product->id)->first();
                     if ($favorite) {
@@ -1181,13 +1182,9 @@ class ProductController extends Controller
                 }
             }
         }
-        if (count($data) == 0) {
-            $response = APIHelpers::createApiResponse(false, 200, 'no ads yet !', ' !لا يوجد اعلانات حتى الان', null, $request->lang);
-            return response()->json($response, 200);
-        } else {
-            $response = APIHelpers::createApiResponse(false, 200, '', '', $data, $request->lang);
-            return response()->json($response, 200);
-        }
+        $response = APIHelpers::createApiResponse(false, 200, '', '', $data, $request->lang);
+        return response()->json($response, 200);
+
     }
 
     public function offer_ads(Request $request)
@@ -1214,7 +1211,7 @@ class ProductController extends Controller
             $data[$inc]['id'] = $row->id;
             $data[$inc]['title'] = $row->title;
             $data[$inc]['image'] = $row->main_image;
-            $data[$inc]['price'] = $row->price;
+            $data[$inc]['price'] = number_format((float)( $row->price ), 3);
             $data[$inc]['description'] = $row->description;
             $favorite = Favorite::where('user_id', $user->id)->where('product_id', $row->id)->first();
             if ($favorite) {
@@ -1308,6 +1305,7 @@ class ProductController extends Controller
             ->with('Area_api')
             ->select('id', 'category_id', 'sub_category_id', 'sub_category_two_id', 'sub_category_three_id', 'sub_category_four_id', 'sub_category_five_id', 'title', 'price', 'description', 'main_image', 'city_id', 'area_id', 'share_location', 'latitude', 'longitude')
             ->first();
+        $data['ad']['price']  = number_format((float)( $data['ad']['price'] ), 3);
         if($data['ad']['sub_category_id'] == null){
             $data['ad']['sub_category_id'] = 0;
         }
