@@ -555,20 +555,19 @@ class ProductController extends Controller
         $result = $result->get();
 
         if(count($result) == 0){
-            $result = Product::query();
-            $result = $result->where('publish', 'Y')
-                ->where('status', 1)
-                ->where('deleted', 0)
-                ->where('price', '!=', null)
-                ->orderBy('price', 'asc')->get();
+//            $result = Product::query();
+//            $result = $result->where('publish', 'Y')
+//                ->where('status', 1)
+//                ->where('deleted', 0)
+//                ->where('price', '!=', null)
+//                ->orderBy('price', 'asc')->get();
+            $data['max'] = 0;
+            $data['min'] = 0;
+        }else{
+            $data['max'] = $result->last()->price;
+            $data['min'] = $result->first()->price;
         }
-        $data['max'] = $result->last()->price;
-        $data['min'] = $result->first()->price;
 
-//        $null_price = Product::where('publish', 'Y')->where('status', 1)->where('deleted', 0)->where('price', null)->get();
-//        if (count($null_price) > 0) {
-//            $data['min'] = "0";
-//        }
         $response = APIHelpers::createApiResponse(false, 200, '', '', $data, $request->lang);
         return response()->json($response, 200);
     }
