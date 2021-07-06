@@ -555,14 +555,14 @@ class ProductController extends Controller
         $result = $result->get();
 
         if(count($result) == 0){
-//            $result = Product::query();
-//            $result = $result->where('publish', 'Y')
-//                ->where('status', 1)
-//                ->where('deleted', 0)
-//                ->where('price', '!=', null)
-//                ->orderBy('price', 'asc')->get();
-            $data['max'] = 0;
-            $data['min'] = 0;
+            $result = Product::query();
+            $result = $result->where('publish', 'Y')
+                ->where('status', 1)
+                ->where('deleted', 0)
+                ->where('price', '!=', null)
+                ->orderBy('price', 'asc')->get();
+//            $data['max'] = 0;
+//            $data['min'] = 0;
         }else{
             $data['max'] = $result->last()->price;
             $data['min'] = $result->first()->price;
