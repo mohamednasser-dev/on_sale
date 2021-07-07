@@ -183,6 +183,10 @@ class ChatController extends Controller
 //                $fb_token = 'deI6kg_YQ0S1PXNBOh4uPK:APA91bHUJudsUtTu37XKqHn07s7SLAsue0aVKq6XX8-2CRstdSqeIJOG2hWW6fOs-tkQntniC4y4PFWCNIQ-Ny-0Mqrn0O8YpxBKNrEWxw4UgdYOb_zcPHIiFEglVPcyZvENtrmQ-wNa';
                 $result = APIHelpers::send_chat_notification($fb_token, $title, $sub_message, $message->type, $message, $link);
                 //end firebase
+                //make messgae last update
+                $last_update_data = Participant::where('conversation_id', $input['conversation_id'])->where('user_id', auth()->user()->id)->first();
+                $last_update_data->updated_at = Carbon::now();
+                $last_update_data->save();
                 $response = APIHelpers::createApiResponse(false, 200, 'message sent successfully', 'تم ارسال الرسالة بنجاح', $data, $request->lang);
                 return response()->json($response, 200);
             } else {
