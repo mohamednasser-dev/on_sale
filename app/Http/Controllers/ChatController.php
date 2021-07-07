@@ -57,7 +57,7 @@ class ChatController extends Controller
     {
         $user_id = auth()->user()->id;
         $lang = $request->lang;
-        $data['conversations'] = Participant::with('Product_data')->where('user_id', $user_id)
+        $data['conversations'] = Participant::with('Product_data')->where('user_id', $user_id)->orderBy('updated_at','desc')
             ->get()
             ->map(function ($convs) {
                 $other_user = Participant::where('conversation_id', $convs->conversation_id)->where('user_id', '!=', auth()->user()->id)->first();
