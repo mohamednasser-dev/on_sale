@@ -121,7 +121,7 @@ class PlanController extends Controller
                         }
                         $plans->title = $plans->title_ar;
                     }
-                    $plans->price  = number_format((float)( $plans->price ), 3);
+//                    $plans->price  = number_format((float)( $plans->price ), 3);
 
                     return $plans;
                 });
