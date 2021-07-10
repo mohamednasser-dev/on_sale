@@ -107,16 +107,22 @@ class PlanController extends Controller
                 ->orwhere('cat_id' , 'all')
                 ->where('status' , 'show')
                 ->where('deleted','0')
-                ->select('id' ,'title_ar as title' , 'title_en' ,'cat_id','price')
+                ->select('id' ,'title_ar as title' ,'title_en','cat_id','price')
                 ->get()
                 ->map(function($plans) use ($lang) {
                     if($lang == 'en'){
                         foreach($plans->Details as $plan_detail){
                             $plan_detail->title = $plan_detail->title_en;
                         }
-                        $plans->price  = number_format((float)( $plans->price ), 3);
                         $plans->title = $plans->title_en;
+                    }else{
+                        foreach($plans->Details as $plan_detail){
+                            $plan_detail->title = $plan_detail->title_ar;
+                        }
+                        $plans->title = $plans->title_ar;
                     }
+                    $plans->price  = number_format((float)( $plans->price ), 3);
+
                     return $plans;
                 });
         $response = APIHelpers::createApiResponse(false , 200 , '' , '' , $data , $request->lang);
