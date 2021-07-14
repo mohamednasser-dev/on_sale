@@ -10,7 +10,7 @@ class Plan extends Model
 
     public function Details() {
         return $this->hasMany('App\Plan_details', 'plan_id')
-            ->select('id' ,'title_ar as title' , 'title_en' ,'plan_id','status')->where('status','show');
+            ->select('id' ,'title_'.session('api_lang').' as title' ,'plan_id','status')->where('status','show');
     }
     public function Cat()
     {
