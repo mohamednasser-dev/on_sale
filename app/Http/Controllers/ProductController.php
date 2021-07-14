@@ -1564,19 +1564,20 @@ class ProductController extends Controller
         return response()->json($response, 200);
     }
 
-    public function areas(Request $request)
+    public function areas( Request $request , $city_id )
     {
         Session::put('api_lang', $request->lang);
+        $areas = [];
         if ($request->lang == 'en') {
-            $areas = Area::where('deleted', '0')
+            $areas = Area::where('city_id',$city_id)->where('deleted', '0')
                 ->select('id', 'title_en as title')
                 ->get();
         } else {
-            $areas = Area::where('deleted', '0')
+            $areas = Area::where('city_id',$city_id)->where('deleted', '0')
                 ->select('id', 'title_ar as title')
                 ->get();
         }
-        $response = APIHelpers::createApiResponse(false, 200, '', '', array('areas' => $areas), $request->lang);
+        $response = APIHelpers::createApiResponse(false, 200, '', '', $areas, $request->lang);
         return response()->json($response, 200);
     }
 }
