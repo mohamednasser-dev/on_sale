@@ -16,6 +16,8 @@ Route::get('/setlocale/{locale}',function($lang){
     return redirect()->back();
 });
 
+Route::get('/' ,'Front\HomeController@index')->name('front.home');
+
 // Dashboard Routes
 Route::group(['middleware'=>'language','prefix' => "admin-panel",'namespace' => "Admin"] , function($router){
 
