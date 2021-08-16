@@ -260,6 +260,7 @@ class ProductController extends Controller
             $data->conversation_id = 0;
         }
         $date = date_create($data->date);
+        $data->comments_count = Product_comment::where('product_id',$data->id)->where('status','accepted')->get()->count();
         $data->date = date_format($date, 'd M Y');
         $data->time = date_format($date, 'g:i a');
         $data->likes = Favorite::where('product_id', $data->id)->count();
