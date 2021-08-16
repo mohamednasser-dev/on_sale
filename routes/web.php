@@ -223,6 +223,8 @@ Route::group(['middleware'=>'language','prefix' => "admin-panel",'namespace' => 
         Route::get('choose_to_you', 'ProductController@chooses')->name("products.choose_to_you");
         Route::get('make_offer/{id}', 'ProductController@make_offer')->name("products.make_offer");
         Route::get('make_choose/{id}', 'ProductController@make_choose')->name("products.make_choose");
+        Route::get('get_comments/{id}', 'ProductController@get_comments')->name("products.get_comments");
+        Route::get('delete_comments/{id}', 'ProductController@delere_comment')->name("delete.comment");
         Route::post('update/offer/baner', 'ProductController@update_baner')->name("update.offer.baner");
         Route::post('update/offer/english/baner', 'ProductController@update_baner_english')->name("update.offer.baner_english");
 

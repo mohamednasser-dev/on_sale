@@ -76,6 +76,8 @@ use Illuminate\Http\Request;
         Route::post('create/{lang}/{v}' , 'ProductController@create');
         Route::post('uploadimages/{lang}/{v}' , 'ProductController@uploadimages');
         Route::get('details/{id}/{lang}/{v}' , 'ProductController@getdetails')->middleware('checkguest');
+        Route::post('make_comment/{lang}/{v}' , 'ProductController@make_comment');
+        Route::get('get_all_comments/{id}/{lang}/{v}' , 'ProductController@get_all_comments');
     });
 
     // offers

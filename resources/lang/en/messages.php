@@ -1,6 +1,11 @@
 <?php
     return [
         //new
+
+
+
+        'comment' => "comment",
+        'comments' => "comments",
         'our_offers' => "our offers",
         'choose_to_you' => "choose to you",
         'show_all' => "choose to you",

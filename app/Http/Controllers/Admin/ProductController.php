@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Product_comment;
 use JD\Cloudder\Facades\Cloudder;
 use App\Category_option_value;
 use Illuminate\Http\Request;
@@ -36,6 +37,17 @@ class ProductController extends AdminController
         $data['offer_image_en'] = Setting::where('id', 1)->first()->offer_image_en;
         $data['products'] = Product::where('offer', 1)->where('deleted', 0)->orderBy('id', 'desc')->get();
         return view('admin.products.offers', ['data' => $data]);
+    }
+    public function get_comments($id)
+    {
+        $data = Product_comment::where('status','accepted')->where('product_id',$id)->get();
+        return view('admin.products.comments',compact('data'));
+    }
+    public function delere_comment($id)
+    {
+        Product_comment::where('id',$id)->delete();
+        session()->flash('success', trans('messages.deleted_s'));
+        return back();
     }
 
     public function chooses()

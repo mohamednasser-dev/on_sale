@@ -33,6 +33,7 @@
                             <th class="text-center">{{ __('messages.plan_name') }}</th>
                             <th class="text-center">{{ __('messages.user') }}</th>
                             <th class="text-center">{{ __('messages.archived_or_not') }}</th>
+                            <th class="text-center">{{ __('messages.comments') }}</th>
                             <th class="text-center">{{ __('messages.our_offers') }}</th>
                             <th class="text-center">{{ __('messages.choose_to_you') }}</th>
                             <th class="text-center">{{ __('messages.details') }}</th>
@@ -69,6 +70,11 @@
                                     <td class="text-center">
                                         <a href="{{ route('users.details', $product->user->id) }}" target="_blank">
                                             {{ $product->user->name }}
+                                        </a>
+                                    </td>
+                                    <td class="text-center blue-color">
+                                        <a href="{{route('products.get_comments',$product->id)}}" class="btn btn-primary  mb-2 mr-2 rounded-circle" title="" data-original-title="Tooltip using BUTTON tag">
+                                            {{count($product->Comments)}}
                                         </a>
                                     </td>
                                     <td class="text-center blue-color">

@@ -6,6 +6,7 @@ use App\Category;
 use App\ContactUs;
 use App\Conversation;
 use App\Participant;
+use App\Product_comment;
 use App\SubCategory;
 use App\SubFiveCategory;
 use App\SubFourCategory;
@@ -36,7 +37,7 @@ class ProductController extends Controller
     {
         $this->middleware('auth:api', ['except' => ['ad_owner_info', 'current_ads', 'ended_ads', 'max_min_price', 'filter', 'offer_ads', 'republish_ad',
             'areas', 'cities', 'third_step_excute_pay', 'save_third_step_with_money', 'update_ad', 'select_ad_data', 'delete_my_ad',
-            'save_third_step', 'save_second_step', 'save_first_step', 'getdetails', 'last_seen', 'getoffers', 'getproducts', 'getsearch', 'getFeatureOffers']]);
+            'save_third_step', 'save_second_step', 'save_first_step', 'make_comment', 'get_all_comments','getdetails', 'last_seen', 'getoffers', 'getproducts', 'getsearch', 'getFeatureOffers']]);
         //        --------------------------------------------- begin scheduled functions --------------------------------------------------------
 
         $expired = Product::where('status', 1)->whereDate('expiry_date', '<', Carbon::now())->get();
@@ -199,7 +200,7 @@ class ProductController extends Controller
         $data = Product::with('Product_user')->with('Area_name')
             ->select('id', 'title', 'main_image', 'description', 'price', 'type', 'publication_date as date', 'user_id', 'category_id', 'latitude', 'longitude', 'share_location', 'area_id')
             ->find($request->id);
-        $data->price = number_format((float)( $data->price ), 3);
+        $data->price = number_format((float)($data->price), 3);
 
         if ($data->share_location == '0') {
             $data->share_location = 0;
@@ -279,7 +280,7 @@ class ProductController extends Controller
             ->limit(3)
             ->get()
             ->map(function ($ads) use ($lang) {
-                $ads->price = number_format((float)( $ads->price ), 3);
+                $ads->price = number_format((float)($ads->price), 3);
                 $ads->time = APIHelpers::get_month_year($ads->created_at, $lang);
                 return $ads;
             });
@@ -302,7 +303,7 @@ class ProductController extends Controller
             ->limit(3)
             ->get()
             ->map(function ($ads) use ($lang) {
-                $ads->price = number_format((float)( $ads->price ), 3);
+                $ads->price = number_format((float)($ads->price), 3);
                 $ads->time = APIHelpers::get_month_year($ads->created_at, $lang);
                 return $ads;
             });
@@ -319,12 +320,19 @@ class ProductController extends Controller
             }
         }
         $views = Product_view::where('product_id', $data->id)->count();
+        $comments = Product_comment::where('status','accepted')->with('User')->select('id','user_id','product_id','comment','created_at')->where('product_id', $data->id)->take(3)->get();
 
         $response = APIHelpers::createApiResponse(false, 200, '', '', array('product' => $data,
-            'features' => $feature_data, 'user_other_ads' => $user_other_ads, 'related' => $related, 'views' => $views), $request->lang);
+            'features' => $feature_data, 'user_other_ads' => $user_other_ads, 'related' => $related, 'views' => $views,'comments'=>$comments), $request->lang);
         return response()->json($response, 200);
     }
 
+    public function get_all_comments(Request $request,$id)
+    {
+        $data = Product_comment::where('status','accepted')->with('User')->select('id','user_id','product_id','comment','created_at')->get();
+        $response = APIHelpers::createApiResponse(false, 200, '', '', $data, $request->lang);
+        return response()->json($response, 200);
+    }
     public function getoffers(Request $request)
     {
         $products = Product::where('offer', 1)->select('id', 'title', 'price', 'type', 'publication_date as date')->orderBy('publication_date', 'DESC')->where('status', 1)->where('deleted', 0)->where('publish', 'Y')->simplePaginate(12);
@@ -399,7 +407,7 @@ class ProductController extends Controller
             ->where('publish', 'Y')
             ->where('deleted', '0')
             ->get()->map(function ($data) use ($lang, $user) {
-                $data->price = number_format((float)( $data->price ), 3);
+                $data->price = number_format((float)($data->price), 3);
                 if ($user != null) {
                     $favorite = Favorite::where('user_id', $user->id)->where('product_id', $data->id)->first();
                     if ($favorite) {
@@ -438,7 +446,7 @@ class ProductController extends Controller
             ->orderBy('created_at', 'desc')
             ->simplePaginate(12);
         for ($i = 0; $i < count($products); $i++) {
-            $products[$i]['price']  = number_format((float)( $products[$i]['price'] ), 3);
+            $products[$i]['price'] = number_format((float)($products[$i]['price']), 3);
             $views = Product_view::where('product_id', $products[$i]['id'])->get()->count();
             $products[$i]['views'] = $views;
             $user = auth()->user();
@@ -502,7 +510,7 @@ class ProductController extends Controller
             ->orderBy('created_at', 'desc')
             ->simplePaginate(12);
         for ($i = 0; $i < count($products); $i++) {
-            $products[$i]['price'] = number_format((float)( $products[$i]['price'] ), 3);
+            $products[$i]['price'] = number_format((float)($products[$i]['price']), 3);
             $views = Product_view::where('product_id', $products[$i]['id'])->get()->count();
             $products[$i]['views'] = $views;
             $user = auth()->user();
@@ -555,7 +563,7 @@ class ProductController extends Controller
         }
         $result = $result->get();
 
-        if(count($result) == 0){
+        if (count($result) == 0) {
             $result = Product::query();
             $result = $result->where('publish', 'Y')
                 ->where('status', 1)
@@ -564,7 +572,7 @@ class ProductController extends Controller
                 ->orderBy('price', 'asc')->get();
 //            $data['max'] = 0;
 //            $data['min'] = 0;
-        }else{
+        } else {
             $data['max'] = $result->last()->price;
             $data['min'] = $result->first()->price;
         }
@@ -713,7 +721,7 @@ class ProductController extends Controller
                             }
                         }
                     }
-                    if($request->images != null){
+                    if ($request->images != null) {
                         foreach ($request->images as $image) {
                             Cloudder::upload("data:image/jpeg;base64," . $image, null);
                             $imagereturned = Cloudder::getResult();
@@ -733,6 +741,33 @@ class ProductController extends Controller
                         'محفظتك لا تحتوى على المبلغ الكافى لانشاء الاعلانا', null, $request->lang);
                     return response()->json($response, 406);
                 }
+            } else {
+                $response = APIHelpers::createApiResponse(true, 406, '', 'يجب تسجيل الدخول اولا', null, $request->lang);
+                return response()->json($response, 406);
+            }
+        }
+    }
+
+    public function make_comment(Request $request)
+    {
+        $input = $request->all();
+
+        $validator = Validator::make($input, [
+            'comment' => 'required',
+            'product_id' => 'required',
+
+        ]);
+        if ($validator->fails()) {
+            $response = APIHelpers::createApiResponse(true, 406, $validator->messages()->first(), $validator->messages()->first(), null, $request->lang);
+            return response()->json($response, 406);
+        } else {
+            $user = auth()->user();
+            if ($user != null) {
+                $input['user_id'] = $user->id;
+                $comment = Product_comment::create($input);
+                $data = Product_comment::with('User')->select('id','user_id','product_id','comment','created_at')->where('id',$comment->id)->first();
+                $response = APIHelpers::createApiResponse(false, 200, 'your ad comment added successfully wait admin to approve', ' تم أنشاء التعليق بنجاح انتظر الادارة للموافقه', $data, $request->lang);
+                return response()->json($response, 200);
             } else {
                 $response = APIHelpers::createApiResponse(true, 406, '', 'يجب تسجيل الدخول اولا', null, $request->lang);
                 return response()->json($response, 406);
@@ -1090,9 +1125,9 @@ class ProductController extends Controller
             ->select('id', 'title', 'price', 'main_image')
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function ($data){
-                $data->price = number_format((float)( $data->price ), 3);
-                return $data ;
+            ->map(function ($data) {
+                $data->price = number_format((float)($data->price), 3);
+                return $data;
             });
         $ads['current_ads'] = Product::where('status', 1)
             ->where('publish', 'Y')
@@ -1101,9 +1136,9 @@ class ProductController extends Controller
             ->select('id', 'title', 'price', 'main_image')
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function ($data){
-                $data->price = number_format((float)( $data->price ), 3);
-                return $data ;
+            ->map(function ($data) {
+                $data->price = number_format((float)($data->price), 3);
+                return $data;
             });
         if (count($ads) == 0) {
             $response = APIHelpers::createApiResponse(false, 200, 'no ads yet !', ' !لا يوجد اعلانات حتى الان', null, $request->lang);
@@ -1162,7 +1197,7 @@ class ProductController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
         $inc = 0;
-        $data =[];
+        $data = [];
         foreach ($ads as $key => $row) {
             $product = Product::where('id', $row->product_id)->first();
             if ($product != null) {
@@ -1170,7 +1205,7 @@ class ProductController extends Controller
                     $data[$inc]['id'] = $product->id;
                     $data[$inc]['title'] = $product->title;
                     $data[$inc]['image'] = $product->main_image;
-                    $data[$inc]['price'] = number_format((float)( $product->price ), 3) ;
+                    $data[$inc]['price'] = number_format((float)($product->price), 3);
                     $data[$inc]['description'] = $product->description;
                     $favorite = Favorite::where('user_id', $user->id)->where('product_id', $product->id)->first();
                     if ($favorite) {
@@ -1211,7 +1246,7 @@ class ProductController extends Controller
             $data[$inc]['id'] = $row->id;
             $data[$inc]['title'] = $row->title;
             $data[$inc]['image'] = $row->main_image;
-            $data[$inc]['price'] = number_format((float)( $row->price ), 3);
+            $data[$inc]['price'] = number_format((float)($row->price), 3);
             $data[$inc]['description'] = $row->description;
             $favorite = Favorite::where('user_id', $user->id)->where('product_id', $row->id)->first();
             if ($favorite) {
@@ -1305,20 +1340,20 @@ class ProductController extends Controller
             ->with('Area_api')
             ->select('id', 'category_id', 'sub_category_id', 'sub_category_two_id', 'sub_category_three_id', 'sub_category_four_id', 'sub_category_five_id', 'title', 'price', 'description', 'main_image', 'city_id', 'area_id', 'share_location', 'latitude', 'longitude')
             ->first();
-        $data['ad']['price']  = number_format((float)( $data['ad']['price'] ), 3);
-        if($data['ad']['sub_category_id'] == null){
+        $data['ad']['price'] = number_format((float)($data['ad']['price']), 3);
+        if ($data['ad']['sub_category_id'] == null) {
             $data['ad']['sub_category_id'] = 0;
         }
-        if($data['ad']['sub_category_two_id'] == null){
+        if ($data['ad']['sub_category_two_id'] == null) {
             $data['ad']['sub_category_two_id'] = 0;
         }
-        if($data['ad']['sub_category_three_id'] == null){
+        if ($data['ad']['sub_category_three_id'] == null) {
             $data['ad']['sub_category_three_id'] = 0;
         }
-        if($data['ad']['sub_category_four_id'] == null){
+        if ($data['ad']['sub_category_four_id'] == null) {
             $data['ad']['sub_category_four_id'] = 0;
         }
-        if($data['ad']['sub_category_five_id'] == null){
+        if ($data['ad']['sub_category_five_id'] == null) {
             $data['ad']['sub_category_five_id'] = 0;
         }
         if ($data['ad']->share_location == '1') {
@@ -1564,16 +1599,16 @@ class ProductController extends Controller
         return response()->json($response, 200);
     }
 
-    public function areas( Request $request , $city_id )
+    public function areas(Request $request, $city_id)
     {
         Session::put('api_lang', $request->lang);
         $areas = [];
         if ($request->lang == 'en') {
-            $areas = Area::where('city_id',$city_id)->where('deleted', '0')
+            $areas = Area::where('city_id', $city_id)->where('deleted', '0')
                 ->select('id', 'title_en as title')
                 ->get();
         } else {
-            $areas = Area::where('city_id',$city_id)->where('deleted', '0')
+            $areas = Area::where('city_id', $city_id)->where('deleted', '0')
                 ->select('id', 'title_ar as title')
                 ->get();
         }

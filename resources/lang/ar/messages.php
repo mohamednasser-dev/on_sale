@@ -1,6 +1,14 @@
 <?php
 return [
     //new
+
+
+
+
+
+
+    'comment' => "التعليق",
+    'comments' => "التعليقات",
     'our_offers' => "عروضنا",
     'choose_to_you' => "اخترنالك",
     'show_all' => "اخترنالك",
@@ -154,7 +162,7 @@ return [
     "app_pages" => "صفحات التطبيق",
     "settings" => "الإعدادات",
     "add_new_user" => "إضافة مستخدم جديد",
-    "user_name" => "إسم المستخدم",
+    "user_name" => "اسم المستخدم",
     "user_phone" => "رقم الهاتف",
     "user_email" => "البريد الإلكتروني",
     "password" => "كلمة المرور",
