@@ -330,7 +330,7 @@ class ProductController extends Controller
 
     public function get_all_comments(Request $request,$id)
     {
-        $data = Product_comment::where('status','accepted')->where('product_id', $id)->with('User')->select('id','user_id','product_id','comment','created_at')->get();
+        $data = Product_comment::where('status','accepted')->where('product_id', $idf)->with('User')->select('id','user_id','product_id','comment','created_at')->get();
         $response = APIHelpers::createApiResponse(false, 200, '', '', $data, $request->lang);
         return response()->json($response, 200);
     }
@@ -1255,7 +1255,9 @@ class ProductController extends Controller
             } else {
                 $data[$inc]['favorite'] = false;
             }
+            $data[$inc]['views'] = Product_view::where('product_id', $row->id)->count();
             $inc = $inc + 1;
+
         }
         if (count($data) == 0) {
             $response = APIHelpers::createApiResponse(false, 200, 'no ads yet !', ' !لا يوجد اعلانات حتى الان', null, $request->lang);
