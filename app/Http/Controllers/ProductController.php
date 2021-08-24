@@ -777,6 +777,31 @@ class ProductController extends Controller
         }
     }
 
+    public function delete_my_comment(Request $request,$id)
+    {
+        $user = auth()->user();
+        if ($user != null) {
+            $input['user_id'] = $user->id;
+            $comment = Product_comment::where('id',$id)->first();
+            if($comment){
+                if($comment->user_id == $user->id) {
+                    Product_comment::where('id',$id)->delete();
+                    $response = APIHelpers::createApiResponse(false, 200, 'deleted successfully', 'تم الحذف بنجاح', null, $request->lang);
+                    return response()->json($response, 200);
+                }else{
+                    $response = APIHelpers::createApiResponse(true, 406, 'you not comment owner','انت لست صاحب التعليق', null, $request->lang);
+                    return response()->json($response, 406);
+                }
+            }else{
+                $response = APIHelpers::createApiResponse(true, 406, 'no comment selected','لم يتم اختيار تعليق', null, $request->lang);
+                return response()->json($response, 406);
+            }
+        } else {
+            $response = APIHelpers::createApiResponse(true, 406, '', 'يجب تسجيل الدخول اولا', null, $request->lang);
+            return response()->json($response, 406);
+        }
+    }
+
     public function save_second_step(Request $request)
     {
         $input = $request->all();
