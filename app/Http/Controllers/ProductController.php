@@ -282,7 +282,7 @@ class ProductController extends Controller
             ->get()
             ->map(function ($ads) use ($lang) {
                 $ads->price = number_format((float)($ads->price), 3);
-                $ads->time = APIHelpers::get_month_year($ads->created_at, $lang);
+                $ads->time = $ads->created_at->format('Y-m-d');
                 $ads->views = Product_view::where('product_id', $ads->id)->get()->count();
                 return $ads;
             });
@@ -306,7 +306,7 @@ class ProductController extends Controller
             ->get()
             ->map(function ($ads) use ($lang) {
                 $ads->price = number_format((float)($ads->price), 3);
-                $ads->time = APIHelpers::get_month_year($ads->created_at, $lang);
+                $ads->time = $ads->created_at->format('Y-m-d');
                 $ads->views = Product_view::where('product_id', $ads->id)->get()->count();
                 return $ads;
             });
