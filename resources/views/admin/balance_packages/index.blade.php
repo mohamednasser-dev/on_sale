@@ -41,7 +41,7 @@
                         <tr >
                             <td class="text-center blue-color"><?=$i;?></td>
                             <td class="text-center blue-color">{{ app()->getLocale() == 'en' ? $row->name_en : $row->name_ar }}</td>
-                            <td class="text-center blue-color">{{ app()->getLocale() == 'en' ? $row->desc_an : $row->desc_ar }}</td>
+                            <td class="text-center blue-color">{{ app()->getLocale() == 'en' ? $row->desc_en : $row->desc_ar }}</td>
                             <td class="text-center">{{ $row->amount }}</td>
                             <td class="text-center">{{ $row->price }}</td>
                             <td class="text-center">{{ $row->created_at->format('Y-m-d') }}</td>
