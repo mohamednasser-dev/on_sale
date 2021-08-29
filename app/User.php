@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Carbon\Carbon;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -53,5 +54,12 @@ class User extends Authenticatable implements JWTSubject
 
     public function products() {
         return $this->hasMany('App\Product', 'user_id');
+    }
+
+
+
+    public function getCreatedAtAttribute($date)
+    {
+        return Carbon::createFromFormat('Y-m-d H:i:s', $date)->format('Y-m-d');
     }
 }
